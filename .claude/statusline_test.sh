@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+passed=0
+failed=0
+
+pass() { echo "PASS: $1"; passed=$((passed + 1)); }
+fail() { echo "FAIL: $1 (expected: $2, actual: $3)"; failed=$((failed + 1)); }
+
+assert_eq() {
+  local desc="$1" expected="$2" actual="$3"
+  if [ "$expected" = "$actual" ]; then pass "$desc"; else fail "$desc" "$expected" "$actual"; fi
+}
+
+tmp="$(mktemp -d)"
+cleanup() {
+  local rc=$?
+  rm -rf "$tmp"
+  echo ""
+  echo "Results: $passed passed, $failed failed"
+  if [ "$rc" -ne 0 ] || [ "$failed" -gt 0 ]; then
+    exit 1
+  fi
+}
+trap cleanup EXIT
+
+# Setup: git repo with known branch for consistent output
+git init "$tmp/repo" >/dev/null 2>&1
+git -C "$tmp/repo" checkout -b test-main >/dev/null 2>&1
+git -C "$tmp/repo" -c user.name=test -c user.email=test@test.com commit --allow-empty -m "init" >/dev/null 2>&1
+
+# --- Test: normal input with all fields ---
+echo "--- statusline.sh: normal input ---"
+input='{"workspace":{"current_dir":"/home/user/ciya-dev/feature-branch"},"model":{"display_name":"Opus"},"context_window":{"total_input_tokens":12500,"total_output_tokens":3500,"used_percentage":45.7},"cost":{"total_cost_usd":1.23}}'
+actual=$(echo "$input" | bash -c "cd '$tmp/repo' && bash '$SCRIPT_DIR/statusline.sh'")
+expected="feature-branch (test-main) [Opus] [in:13k out:4k] [\$1.2] [ctx:45%]"
+assert_eq "formats all fields correctly" "$expected" "$actual"
+
+# --- Test: zero tokens ---
+echo "--- statusline.sh: zero tokens ---"
+input='{"workspace":{"current_dir":"/home/user/project"},"model":{"display_name":"Sonnet"},"context_window":{"total_input_tokens":0,"total_output_tokens":0,"used_percentage":0},"cost":{"total_cost_usd":0}}'
+actual=$(echo "$input" | bash -c "cd '$tmp/repo' && bash '$SCRIPT_DIR/statusline.sh'")
+expected="project (test-main) [Sonnet] [in:0k out:0k] [\$0.0] [ctx:0%]"
+assert_eq "handles zero values" "$expected" "$actual"
+
+# --- Test: large token counts round correctly ---
+echo "--- statusline.sh: rounding ---"
+input='{"workspace":{"current_dir":"/home/user/mydir"},"model":{"display_name":"Haiku"},"context_window":{"total_input_tokens":999499,"total_output_tokens":500,"used_percentage":99.9},"cost":{"total_cost_usd":0.05}}'
+actual=$(echo "$input" | bash -c "cd '$tmp/repo' && bash '$SCRIPT_DIR/statusline.sh'")
+expected="mydir (test-main) [Haiku] [in:999k out:1k] [\$0.1] [ctx:99%]"
+assert_eq "rounds token counts and truncates ctx percentage" "$expected" "$actual"
+
+# --- Test: missing optional fields use defaults ---
+echo "--- statusline.sh: missing fields ---"
+input='{"workspace":{},"model":{},"context_window":{},"cost":{}}'
+actual=$(echo "$input" | bash -c "cd '$tmp/repo' && bash '$SCRIPT_DIR/statusline.sh'")
+expected=" (test-main) [Unknown] [in:0k out:0k] [\$0.0] [ctx:0%]"
+assert_eq "uses defaults for missing fields" "$expected" "$actual"
