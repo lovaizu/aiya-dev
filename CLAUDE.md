@@ -9,18 +9,19 @@ All communication, documentation, commit messages, PR descriptions, issue descri
 Follow this workflow for every task:
 
 1. **Hearing** - Gather requirements from the developer, ask clarifying questions
-2. **Issue creation** - Propose and create a GitHub issue
-3. **Approval** - Wait for developer approval of the issue. If denied, revise based on feedback and re-propose
-4. **PR description** - Draft the PR title and body
-5. **Approval** - Wait for developer approval of the PR description. If denied, revise based on feedback and re-propose
-6. **Implementation** - Create a worktree (`git fetch origin && git worktree add <branch-name> -b <branch-name> origin/main`), write code, make commits, push the branch, and create the PR (`gh pr create`)
-7. **Consistency check** - Verify all issue and PR sections are consistent with each other: issue title goal matches Benefit, each SC maps to a Benefit, PR Approach addresses each Pain, PR Tasks are traceable to Approach. If any section was updated during earlier steps, re-check all
-8. **Expert review** - Identify the technical domain of the deliverable and simulate a review from a domain expert perspective. Evaluate correctness, best practices, and potential issues. Fix any problems found, then append the review results to the PR body
-9. **Success Criteria check** - Check the Issue's Success Criteria and update them, address any unmet criteria. Append the check results to the PR body
-10. **PR review** - Request review, address feedback
-11. **Approval** - Wait for developer approval of the PR
-12. **Merge** - Verify the PR is approved (`gh pr view <number> --json reviewDecision` must return `APPROVED`). If not `APPROVED`, confirm with the developer before proceeding. Merge to main (using squash merge), remove the worktree (`git worktree remove <branch-name>`), delete the work branch, and run `git fetch --prune` to clean up stale remote tracking branches
-13. **Done**
+2. **Worktree creation** - Create a worktree for the task (`git fetch origin && git worktree add <branch-name> -b <branch-name> origin/main`)
+3. **Issue creation** - Propose and create a GitHub issue
+4. **Approval** - Wait for developer approval of the issue. If denied, revise based on feedback and re-propose
+5. **PR description** - Draft the PR title and body
+6. **Approval** - Wait for developer approval of the PR description. If denied, revise based on feedback and re-propose
+7. **Implementation** - Write code, make commits, push the branch, and create the PR (`gh pr create`)
+8. **Consistency check** - Verify all issue and PR sections are consistent with each other: issue title goal matches Benefit, each SC maps to a Benefit, PR Approach addresses each Pain, PR Tasks are traceable to Approach. If any section was updated during earlier steps, re-check all
+9. **Expert review** - Identify the technical domain of the deliverable and simulate a review from a domain expert perspective. Evaluate correctness, best practices, and potential issues. Fix any problems found, then append the review results to the PR body
+10. **Success Criteria check** - Check the Issue's Success Criteria and update them, address any unmet criteria. Append the check results to the PR body
+11. **PR review** - Request review, address feedback
+12. **Approval** - Wait for developer approval of the PR
+13. **Merge** - Verify the PR is approved (`gh pr view <number> --json reviewDecision` must return `APPROVED`). If not `APPROVED`, confirm with the developer before proceeding. Merge to main (using squash merge), remove the worktree (`git worktree remove <branch-name>`), delete the work branch, and run `git fetch --prune` to clean up stale remote tracking branches
+14. **Done**
 
 ## Issue Format
 
