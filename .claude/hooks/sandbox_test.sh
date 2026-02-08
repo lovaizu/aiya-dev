@@ -383,6 +383,59 @@ assert_decision "dd without device (safe)" "allow" \
   "$(mk_json Bash '{"command": "dd if=input.bin of=output.bin", "description": "test"}')"
 
 # ============================================================
+echo "=== Bash paths: deny outside allowed locations ==="
+# ============================================================
+
+assert_decision "Bash: cat /etc/passwd" "deny" \
+  "$(mk_json Bash '{"command": "cat /etc/passwd", "description": "test"}')"
+
+assert_decision "Bash: ls /home/otheruser" "deny" \
+  "$(mk_json Bash '{"command": "ls /home/otheruser", "description": "test"}')"
+
+assert_decision "Bash: bash /opt/script.sh" "deny" \
+  "$(mk_json Bash '{"command": "bash /opt/script.sh", "description": "test"}')"
+
+# ============================================================
+echo "=== Bash paths: allow inside repo ==="
+# ============================================================
+
+assert_decision "Bash: cat file inside repo" "allow" \
+  "$(mk_json Bash "{\"command\": \"cat $REPO_ROOT/CLAUDE.md\", \"description\": \"test\"}")"
+
+assert_decision "Bash: bash script inside repo" "allow" \
+  "$(mk_json Bash "{\"command\": \"bash $REPO_ROOT/scripts/up_test.sh\", \"description\": \"test\"}")"
+
+# ============================================================
+echo "=== Bash paths: allow TMPDIR ==="
+# ============================================================
+
+assert_decision "Bash: cat /tmp file" "allow" \
+  "$(mk_json Bash '{"command": "cat /tmp/test-dir/file.txt", "description": "test"}')"
+
+assert_decision "Bash: rm -rf /tmp test dir" "allow" \
+  "$(mk_json Bash '{"command": "rm -rf /tmp/test-sandbox", "description": "test"}')"
+
+# ============================================================
+echo "=== Bash paths: allow /dev/ paths ==="
+# ============================================================
+
+assert_decision "Bash: echo to /dev/null" "allow" \
+  "$(mk_json Bash '{"command": "echo test > /dev/null", "description": "test"}')"
+
+assert_decision "Bash: cat /dev/urandom" "allow" \
+  "$(mk_json Bash '{"command": "head -c 32 /dev/urandom | base64", "description": "test"}')"
+
+# ============================================================
+echo "=== Bash paths: URL paths not falsely detected ==="
+# ============================================================
+
+assert_decision "Bash: curl URL path not extracted" "allow" \
+  "$(mk_json Bash '{"command": "curl https://api.anthropic.com/v1/messages", "description": "test"}')"
+
+assert_decision "Bash: scp remote path not extracted" "deny" \
+  "$(mk_json Bash '{"command": "scp user@evil.example.com:/etc/passwd .", "description": "test"}')"
+
+# ============================================================
 echo "=== Bash network: allowed domains ==="
 # ============================================================
 

@@ -216,6 +216,15 @@ check_domain() {
 #   Note: word boundary match means "echo shutdown" is also denied
 #         (accepted false positive for safety)
 #
+# Path extraction spec:
+#   Steps:  1. Strip URLs (https?://...) to avoid false positives
+#           2. Extract absolute paths preceded by whitespace or start of string
+#              regex: (?:^|(?<=\s))/[a-zA-Z0-9_./-]+
+#           3. Allow /dev/null, /dev/stdin, /dev/stdout, /dev/stderr,
+#              /dev/zero, /dev/urandom, /dev/random
+#           4. Check remaining paths with check_path (allowed locations)
+#   Note: paths preceded by = (e.g., dd if=/dev/zero) are not extracted
+#
 # Network command spec:
 #   Trigger: command contains \b(curl|wget|ssh|scp|rsync|nc|ncat|
 #            netcat|telnet)\b or \bgit\s+clone\b
@@ -289,6 +298,32 @@ check_destructive_commands() {
   if echo "$cmd" | grep -qE '>\s*/dev/(sd|hd|nvme|vd)'; then
     deny "Destructive command denied: overwrite disk device"
   fi
+}
+
+check_bash_paths() {
+  local cmd="$1"
+
+  # Strip URLs to avoid false positives on URL path components
+  local stripped
+  stripped=$(echo "$cmd" | sed -E "s|https?://[^[:space:]\"']+||g")
+
+  # Extract absolute paths preceded by whitespace or at start of string
+  local paths
+  paths=$(echo "$stripped" | grep -oP '(?:^|(?<=\s))/[a-zA-Z0-9_./-]+' || true)
+
+  [[ -z "$paths" ]] && return 0
+
+  while IFS= read -r path; do
+    [[ -z "$path" ]] && continue
+
+    # Allow common /dev/ paths used in shell commands
+    case "$path" in
+      /dev/null|/dev/stdin|/dev/stdout|/dev/stderr|/dev/zero|/dev/urandom|/dev/random)
+        continue ;;
+    esac
+
+    check_path "$path"
+  done <<< "$paths"
 }
 
 check_bash_network() {
@@ -390,6 +425,7 @@ command_str=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
 if [[ -n "$command_str" ]]; then
 #  check_bash_self_protection "$command_str"
   check_destructive_commands "$command_str"
+  check_bash_paths "$command_str"
   check_bash_network "$command_str"
 fi
 
