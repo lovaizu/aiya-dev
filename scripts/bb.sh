@@ -11,7 +11,7 @@ worktree_root="$(cd "$(dirname "$0")/../.." && pwd)"
 
 cd "$worktree_root"
 git worktree remove "$branch"
-git branch -d "$branch"
+git branch -D "$branch"
 git remote prune origin
 
 echo "Done! Removed worktree and branch: $branch"
