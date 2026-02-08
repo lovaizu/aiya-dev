@@ -1,0 +1,17 @@
+# Allowed domains for Claude Code sandbox hook
+# One domain per line. Subdomains are automatically matched.
+# Lines starting with # are comments.
+
+# Anthropic - Claude API and services
+anthropic.com
+claude.ai
+statsig.anthropic.com
+sentry.io
+
+# GitHub - version control and CLI
+github.com
+githubusercontent.com
+
+# npm - package management
+npmjs.org
+npmjs.com
