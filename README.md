@@ -14,11 +14,10 @@ curl -fsSL https://raw.githubusercontent.com/lovaizu/ciya-dev/main/scripts/up.sh
 ```bash
 cd ciya-dev/main
 cp .env.example .env
-vi .env          # Set ANTHROPIC_API_KEY and GH_TOKEN
-source .env
+vi .env
 ```
 
-`hi.sh` automatically sources `.env` from the worktree directory and sets `ALLOWED_DOMAINS_FILE` to the default path if not specified.
+`hi.sh` automatically sources `.env` from the worktree directory on startup.
 
 ### 3. Start a task
 
