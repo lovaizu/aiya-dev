@@ -9,25 +9,16 @@ Claude Code in your area
 curl -fsSL https://raw.githubusercontent.com/lovaizu/ciya-dev/main/scripts/up.sh | bash
 ```
 
-### 2. Start a new task
+### 2. Start or resume a task
 
 ```bash
 cd ciya-dev
-./main/scripts/hi.sh <branch-name>
+./main/scripts/hi.sh <branch-name or path>
 ```
 
-This creates a worktree, enters it, and starts Claude Code. Then type `/go` to begin the workflow.
+For a new branch, this creates a worktree. For an existing branch, it enters the worktree. Then starts Claude Code — type `/go` to begin or resume the workflow.
 
-### 3. Resume a task
-
-```bash
-cd ciya-dev/<branch-name>
-claude
-```
-
-Then type `/go` to resume the workflow.
-
-### 4. Work
+### 3. Work
 
 | Command | Description |
 |---------|-------------|
@@ -35,7 +26,7 @@ Then type `/go` to resume the workflow.
 | `/fb`   | Address PR review feedback |
 | `/ty`   | Approve and proceed to the next workflow step |
 
-### 5. Clean up
+### 4. Clean up
 
 After merging, remove the worktree:
 
