@@ -13,13 +13,14 @@ Follow this workflow for every task:
 3. **Approval** - Wait for developer approval of the issue. If denied, revise based on feedback and re-propose
 4. **PR description** - Draft the PR title and body
 5. **Approval** - Wait for developer approval of the PR description. If denied, revise based on feedback and re-propose
-6. **Implementation** - Write code, make commits, push the branch
-7. **Expert review** - Identify the technical domain of the deliverable and simulate a review from a domain expert perspective. Evaluate correctness, best practices, and potential issues. Fix any problems found, then append the review results to the PR body
-8. **Success Criteria check** - Check the Issue's Success Criteria and update them, address any unmet criteria. Append the check results to the PR body
-9. **PR review** - Request review, address feedback
-10. **Approval** - Wait for developer approval of the PR
-11. **Merge** - Merge to main (using squash merge), remove the worktree (`git worktree remove <branch-name>`), delete the work branch, and run `git fetch --prune` to clean up stale remote tracking branches
-12. **Done**
+6. **Implementation** - Create a worktree (`git worktree add <branch-name> -b <branch-name> main`), write code, make commits, push the branch
+7. **Consistency check** - When any section of the issue or PR (situation, pain, benefit, SC, approach, tasks) has been updated, verify all related sections remain consistent before proceeding
+8. **Expert review** - Identify the technical domain of the deliverable and simulate a review from a domain expert perspective. Evaluate correctness, best practices, and potential issues. Fix any problems found, then append the review results to the PR body
+9. **Success Criteria check** - Check the Issue's Success Criteria and update them, address any unmet criteria. Append the check results to the PR body
+10. **PR review** - Request review, address feedback
+11. **Approval** - Wait for developer approval of the PR
+12. **Merge** - Verify the PR is approved (`gh pr view <number> --json reviewDecision`). If not approved, confirm with the developer before proceeding. Merge to main (using squash merge), remove the worktree (`git worktree remove <branch-name>`), delete the work branch, and run `git fetch --prune` to clean up stale remote tracking branches
+13. **Done**
 
 ## Issue Format
 
@@ -41,10 +42,16 @@ Follow this workflow for every task:
 ## Benefit
 {Who benefits and how, once resolved}
 
+- Use "[who] can [what]" form
+- Good: "Developers can run multiple tasks in parallel"
+- Bad: "Development throughput is improved"
+
 ## Success Criteria
-- [ ] {Specific, measurable success condition}
-- [ ] {Condition}
-- [ ] {Condition}
+- [ ] {Condition that verifies the Benefit is achieved}
+
+- Must verify Benefit achievement, not describe tasks to complete
+- Good: "A developer can create a worktree and start parallel work by following the documented steps"
+- Bad: "CLAUDE.md has a Worktree section with setup instructions"
 ```
 
 ## Branch Strategy
@@ -81,10 +88,16 @@ Closes #{issue number}
 - [ ] {Task}
 
 ## Expert Review
-{Review results appended after expert review step}
+
+| Feedback | Improvement | Decision |
+|----------|-------------|----------|
+| {What the expert found} | {Proposed fix or change} | {Accepted/Rejected + reason} |
 
 ## Success Criteria Check
-{Check results appended after success criteria check step}
+
+| Criterion | Status | Verified | Reasoning |
+|-----------|--------|----------|-----------|
+| {SC from the issue} | {OK/NG} | {What was done to verify} | {Why this status} |
 ```
 
 ## Worktree
@@ -130,7 +143,7 @@ git branch -d <branch-name>
 
 - Worktree directory name must match the branch name
 - Do not modify the `main` worktree directly — always work in a branch worktree
-- Before creating a new worktree, update the local main: `git fetch origin main:main`
+- Before creating a new worktree, update the local main: `git -C main pull origin main`
 - Run `git worktree list` to check active worktrees before creating a new one
 
 ## PR Review Process
