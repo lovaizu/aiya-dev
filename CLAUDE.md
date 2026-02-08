@@ -96,9 +96,9 @@ Closes #{issue number}
 
 ## Success Criteria Check
 
-| Criterion | Status | Verified | Reasoning |
-|-----------|--------|----------|-----------|
-| {SC from the issue} | {OK/NG} | {What was done to verify} | {Why this status} |
+| Criterion | Status | Method | Evidence |
+|-----------|--------|--------|----------|
+| {SC from the issue} | {OK/NG} | {Executed/Inspected} | {What was done and what was observed} |
 ```
 
 ## Worktree
@@ -111,7 +111,6 @@ This repository uses a bare repo + worktree structure to enable parallel Claude 
 ciya-dev/
 ├── .bare/             # bare repository (metadata only)
 ├── .git               # pointer file to .bare
-├── main/              # main branch worktree
 ├── feature-branch/    # work branch worktree
 └── another-branch/    # work branch worktree
 ```
@@ -122,7 +121,6 @@ ciya-dev/
 mkdir ciya-dev && cd ciya-dev
 git clone --bare https://github.com/lovaizu/ciya-dev.git .bare
 echo "gitdir: ./.bare" > .git
-git worktree add main main
 ```
 
 ### Creating a Work Worktree
@@ -143,8 +141,8 @@ git branch -d <branch-name>
 ### Rules
 
 - Worktree directory name must match the branch name
-- Do not modify the `main` worktree directly — always work in a branch worktree
-- Before creating a new worktree, update the local main: `git -C main pull origin main`
+- Do not create a worktree for `main` — main is managed as a bare ref only
+- Before creating a new worktree, update the local main: `git fetch origin main:main`
 - Run `git worktree list` to check active worktrees before creating a new one
 
 ## PR Review Process
