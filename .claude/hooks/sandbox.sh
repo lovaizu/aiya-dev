@@ -341,75 +341,56 @@ check_bash_network() {
 }
 
 # ============================================================
-# Main dispatch
+# Main dispatch — field-based extraction
 #
 # Spec:
-#   Write/Edit:    self-protection → path check → allow
-#   Read:          path check → allow
-#   NotebookEdit:  self-protection → path check → allow
-#   Glob/Grep:     path check on .path param (if present) → allow
-#   WebFetch:      extract domain from .url → domain check → allow
-#   WebSearch:     allow (uses Anthropic infrastructure, no direct fetch)
-#   Bash:          self-protection → destructive check → network check → allow
-#   Other tools:   allow
+#   Instead of dispatching by tool name, extract paths and domains
+#   from known field names and check them uniformly.
+#
+#   Path fields:   file_path, notebook_path, path
+#   URL fields:    url
+#   Command field: command (contains embedded paths and URLs)
+#
+#   Flow:
+#     1. Self-protection: for write tools, check path fields
+#     2. Path check: extract from path fields → check allowed locations
+#     3. Domain check: extract from URL fields → check allowed domains
+#        (WebSearch exempt — uses Anthropic infrastructure)
+#     4. Command handling: self-protection, destructive, network
+#     5. Allow
 # ============================================================
 
+# --- 1. Self-protection for write tools ---
 case "$TOOL_NAME" in
   Write|Edit)
-    file_path=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
-#    check_self_protection "$file_path"
-    check_path "$file_path"
-    allow
+#    check_self_protection "$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')"
     ;;
-
-  Read)
-    file_path=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
-    check_path "$file_path"
-    allow
-    ;;
-
   NotebookEdit)
-    file_path=$(echo "$INPUT" | jq -r '.tool_input.notebook_path // empty')
-#    check_self_protection "$file_path"
-    check_path "$file_path"
-    allow
-    ;;
-
-  Glob)
-    path=$(echo "$INPUT" | jq -r '.tool_input.path // empty')
-    [[ -n "$path" ]] && check_path "$path"
-    allow
-    ;;
-
-  Grep)
-    path=$(echo "$INPUT" | jq -r '.tool_input.path // empty')
-    [[ -n "$path" ]] && check_path "$path"
-    allow
-    ;;
-
-  WebFetch)
-    url=$(echo "$INPUT" | jq -r '.tool_input.url // empty')
-    if [[ -n "$url" ]]; then
-      domain=$(extract_domain_from_url "$url")
-      check_domain "$domain"
-    fi
-    allow
-    ;;
-
-  WebSearch)
-    # WebSearch goes through Anthropic's infrastructure
-    allow
-    ;;
-
-  Bash)
-    command_str=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
-#    check_bash_self_protection "$command_str"
-    check_destructive_commands "$command_str"
-    check_bash_network "$command_str"
-    allow
-    ;;
-
-  *)
-    allow
+#    check_self_protection "$(echo "$INPUT" | jq -r '.tool_input.notebook_path // empty')"
     ;;
 esac
+
+# --- 2. Path checks from known fields ---
+for field in file_path notebook_path path; do
+  value=$(echo "$INPUT" | jq -r ".tool_input.$field // empty")
+  [[ -n "$value" ]] && check_path "$value"
+done
+
+# --- 3. Domain checks from URL fields ---
+if [[ "$TOOL_NAME" != "WebSearch" ]]; then
+  url=$(echo "$INPUT" | jq -r '.tool_input.url // empty')
+  if [[ -n "$url" ]]; then
+    domain=$(extract_domain_from_url "$url")
+    check_domain "$domain"
+  fi
+fi
+
+# --- 4. Command field handling ---
+command_str=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
+if [[ -n "$command_str" ]]; then
+#  check_bash_self_protection "$command_str"
+  check_destructive_commands "$command_str"
+  check_bash_network "$command_str"
+fi
+
+allow
