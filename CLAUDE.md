@@ -149,6 +149,12 @@ cd /path/to/ciya-dev
 - Always run `hi.sh` / `bb.sh` from the `ciya-dev` root directory
 - Do not modify the `main` worktree directly — always work in a branch worktree
 
+## Script Testing
+
+- Every shell script must have a corresponding test script in the same directory, named `<script name>_test.sh` (e.g., `foo.sh` → `foo_test.sh`)
+- Test scripts must use `mktemp -d` to create temporary environments and clean up (remove the temp directory) after completion
+- Test scripts must be plain bash (no external test frameworks) and exit 0 on success, non-zero on failure
+
 ## PR Review Process
 
 - Continue addressing reviews until the PR is approved
