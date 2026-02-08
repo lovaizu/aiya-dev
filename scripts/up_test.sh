@@ -36,7 +36,7 @@ git clone "$tmp/remote.git" "$tmp/seed" >/dev/null 2>&1
   echo '#!/bin/bash' > scripts/hi.sh
   echo '#!/bin/bash' > scripts/bb.sh
   git add . >/dev/null 2>&1
-  git commit -m "init" >/dev/null 2>&1
+  git -c user.name=test -c user.email=test@test.com commit -m "init" >/dev/null 2>&1
   git push origin main >/dev/null 2>&1
 )
 rm -rf "$tmp/seed"
