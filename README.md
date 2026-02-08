@@ -37,5 +37,5 @@ After merging, remove the worktree from the `main` worktree:
 
 ```bash
 cd ciya-dev/main
-scripts/bb.sh <branch-name>
+scripts/bb.sh <branch-name-or-path>
 ```
