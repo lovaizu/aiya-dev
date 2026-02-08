@@ -19,14 +19,14 @@ vi .env
 
 `hi.sh` automatically sources `.env` from the worktree directory on startup.
 
-### 3. Start a task
+### 3. Start or resume a task
 
 ```bash
-cd ciya-dev/main
-scripts/hi.sh <branch-name>
+cd ciya-dev
+./main/scripts/hi.sh <branch-name or path>
 ```
 
-This creates a worktree, enters it, and starts Claude Code. Then type `/go` to begin the workflow.
+For a new branch, this creates a worktree. For an existing branch, it enters the worktree. Then starts Claude Code — type `/go` to begin or resume the workflow.
 
 ### 4. Work
 
@@ -38,9 +38,9 @@ This creates a worktree, enters it, and starts Claude Code. Then type `/go` to b
 
 ### 5. Clean up
 
-After merging, remove the worktree from the `main` worktree:
+After merging, remove the worktree:
 
 ```bash
-cd ciya-dev/main
-scripts/bb.sh <branch-name-or-path>
+cd ciya-dev
+./main/scripts/bb.sh <branch-name-or-path>
 ```
