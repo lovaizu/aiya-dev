@@ -166,50 +166,49 @@ assert_decision "Read: multiple ../ at boundary" "deny" \
   "$(mk_json Read "{\"file_path\": \"$REPO_ROOT/../../../../etc/shadow\"}")"
 
 # ============================================================
-# echo "=== Self-protection: deny Write/Edit to protected paths ==="
-# ============================================================
-# TEMPORARILY DISABLED for refactoring — re-enable after sandbox.sh refactoring
-
-# assert_decision "Write: .claude/hooks/sandbox.sh" "deny" \
-#   "$(mk_json Write "{\"file_path\": \"$REPO_ROOT/.claude/hooks/sandbox.sh\", \"content\": \"exit 0\"}")"
-#
-# assert_decision "Write: .claude/hooks/new-hook.sh (allowed, not sandbox.sh)" "allow" \
-#   "$(mk_json Write "{\"file_path\": \"$REPO_ROOT/.claude/hooks/new-hook.sh\", \"content\": \"exit 0\"}")"
-#
-# assert_decision "Edit: .claude/settings.json" "deny" \
-#   "$(mk_json Edit "{\"file_path\": \"$REPO_ROOT/.claude/settings.json\", \"old_string\": \"a\", \"new_string\": \"b\"}")"
-#
-# assert_decision "Edit: .claude/settings.local.json" "deny" \
-#   "$(mk_json Edit "{\"file_path\": \"$REPO_ROOT/.claude/settings.local.json\", \"old_string\": \"a\", \"new_string\": \"b\"}")"
-#
-# assert_decision "NotebookEdit: .claude/hooks/test.ipynb (allowed, not sandbox.sh)" "allow" \
-#   "$(mk_json NotebookEdit "{\"notebook_path\": \"$REPO_ROOT/.claude/hooks/test.ipynb\", \"new_source\": \"x\"}")"
-
-# ============================================================
-# echo "=== Self-protection: allow Read of protected paths ==="
+echo "=== Self-protection: deny Write/Edit to protected paths ==="
 # ============================================================
 
-# assert_decision "Read: .claude/hooks/sandbox.sh (read is allowed)" "allow" \
-#   "$(mk_json Read "{\"file_path\": \"$REPO_ROOT/.claude/hooks/sandbox.sh\"}")"
-#
-# assert_decision "Read: .claude/settings.json (read is allowed)" "allow" \
-#   "$(mk_json Read "{\"file_path\": \"$REPO_ROOT/.claude/settings.json\"}")"
+assert_decision "Write: .claude/hooks/sandbox.sh" "deny" \
+  "$(mk_json Write "{\"file_path\": \"$REPO_ROOT/.claude/hooks/sandbox.sh\", \"content\": \"exit 0\"}")"
+
+assert_decision "Write: .claude/hooks/new-hook.sh (allowed, not sandbox.sh)" "allow" \
+  "$(mk_json Write "{\"file_path\": \"$REPO_ROOT/.claude/hooks/new-hook.sh\", \"content\": \"exit 0\"}")"
+
+assert_decision "Edit: .claude/settings.json" "deny" \
+  "$(mk_json Edit "{\"file_path\": \"$REPO_ROOT/.claude/settings.json\", \"old_string\": \"a\", \"new_string\": \"b\"}")"
+
+assert_decision "Edit: .claude/settings.local.json" "deny" \
+  "$(mk_json Edit "{\"file_path\": \"$REPO_ROOT/.claude/settings.local.json\", \"old_string\": \"a\", \"new_string\": \"b\"}")"
+
+assert_decision "NotebookEdit: .claude/hooks/test.ipynb (allowed, not sandbox.sh)" "allow" \
+  "$(mk_json NotebookEdit "{\"notebook_path\": \"$REPO_ROOT/.claude/hooks/test.ipynb\", \"new_source\": \"x\"}")"
 
 # ============================================================
-# echo "=== Self-protection: Bash targeting hook files ==="
+echo "=== Self-protection: allow Read of protected paths ==="
 # ============================================================
 
-# assert_decision "Bash: rm .claude/hooks/sandbox.sh" "deny" \
-#   "$(mk_json Bash '{"command": "rm .claude/hooks/sandbox.sh", "description": "test"}')"
-#
-# assert_decision "Bash: cat > .claude/settings.json" "deny" \
-#   "$(mk_json Bash '{"command": "cat > .claude/settings.json", "description": "test"}')"
-#
-# assert_decision "Bash: sed -i on .claude/settings.local.json" "deny" \
-#   "$(mk_json Bash '{"command": "sed -i s/old/new/ .claude/settings.local.json", "description": "test"}')"
-#
-# assert_decision "Bash: cp over .claude/hooks/" "deny" \
-#   "$(mk_json Bash '{"command": "cp /tmp/evil.sh .claude/hooks/sandbox.sh", "description": "test"}')"
+assert_decision "Read: .claude/hooks/sandbox.sh (read is allowed)" "allow" \
+  "$(mk_json Read "{\"file_path\": \"$REPO_ROOT/.claude/hooks/sandbox.sh\"}")"
+
+assert_decision "Read: .claude/settings.json (read is allowed)" "allow" \
+  "$(mk_json Read "{\"file_path\": \"$REPO_ROOT/.claude/settings.json\"}")"
+
+# ============================================================
+echo "=== Self-protection: Bash targeting hook files ==="
+# ============================================================
+
+assert_decision "Bash: rm .claude/hooks/sandbox.sh" "deny" \
+  "$(mk_json Bash '{"command": "rm .claude/hooks/sandbox.sh", "description": "test"}')"
+
+assert_decision "Bash: cat > .claude/settings.json" "deny" \
+  "$(mk_json Bash '{"command": "cat > .claude/settings.json", "description": "test"}')"
+
+assert_decision "Bash: sed -i on .claude/settings.local.json" "deny" \
+  "$(mk_json Bash '{"command": "sed -i s/old/new/ .claude/settings.local.json", "description": "test"}')"
+
+assert_decision "Bash: cp over .claude/hooks/" "deny" \
+  "$(mk_json Bash '{"command": "cp /tmp/evil.sh .claude/hooks/sandbox.sh", "description": "test"}')"
 
 # ============================================================
 echo "=== Network: domain matching ==="

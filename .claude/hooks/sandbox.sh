@@ -422,10 +422,10 @@ check_bash_network() {
 # --- 1. Self-protection for write tools ---
 case "$TOOL_NAME" in
   Write|Edit)
-#    check_self_protection "$FILE_PATH"
+    check_self_protection "$FILE_PATH"
     ;;
   NotebookEdit)
-#    check_self_protection "$NOTEBOOK_PATH"
+    check_self_protection "$NOTEBOOK_PATH"
     ;;
 esac
 
@@ -445,7 +445,7 @@ if [[ -n "$COMMAND_STR" ]]; then
   if is_content_command "$COMMAND_STR"; then
     check_bash_network "$COMMAND_STR"
   else
-#    check_bash_self_protection "$COMMAND_STR"
+    check_bash_self_protection "$COMMAND_STR"
     check_destructive_commands "$COMMAND_STR"
     check_bash_paths "$COMMAND_STR"
     check_bash_network "$COMMAND_STR"
