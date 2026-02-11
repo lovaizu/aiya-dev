@@ -7,10 +7,16 @@ if [ $# -ne 1 ]; then
 fi
 
 branch="$(basename "$1")"
+
+if [ "$branch" = "main" ]; then
+  echo "Error: cannot remove the 'main' worktree" >&2
+  exit 1
+fi
+
 worktree_root="$(cd "$(dirname "$0")/../.." && pwd)"
 
 cd "$worktree_root"
-git -C "$worktree_root/main" pull --ff-only origin main
+git -C "$worktree_root/main" pull --ff-only origin main || echo "Warning: could not update main (continuing cleanup)" >&2
 git worktree remove "$branch"
 git branch -D "$branch"
 git remote prune origin

@@ -51,6 +51,13 @@ echo "gitdir: ./.bare" > "$tmp/ciya-dev/.git"
   git worktree add main main >/dev/null 2>&1
 )
 
+# --- Test: refuses to remove main ---
+echo "--- bb.sh: refuses to remove main ---"
+exit_code=0
+bash "$tmp/ciya-dev/main/scripts/bb.sh" main 2>/dev/null || exit_code=$?
+check "exits non-zero for main" test "$exit_code" -ne 0
+check "main worktree still exists" test -d "$tmp/ciya-dev/main"
+
 # --- Test: no arguments ---
 echo "--- bb.sh: no arguments ---"
 exit_code=0
@@ -81,3 +88,9 @@ echo "--- bb.sh: extracts basename from path ---"
 (cd "$tmp/ciya-dev" && git worktree add path-branch -b path-branch origin/main >/dev/null 2>&1)
 bash "$tmp/ciya-dev/main/scripts/bb.sh" /some/path/path-branch >/dev/null 2>&1
 check "worktree removed using basename" test ! -d "$tmp/ciya-dev/path-branch"
+
+# --- Test: nonexistent worktree ---
+echo "--- bb.sh: nonexistent worktree ---"
+exit_code=0
+bash "$tmp/ciya-dev/main/scripts/bb.sh" nonexistent-branch 2>/dev/null || exit_code=$?
+check "exits non-zero for nonexistent worktree" test "$exit_code" -ne 0
