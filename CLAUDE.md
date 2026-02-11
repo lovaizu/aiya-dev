@@ -1,3 +1,4 @@
 # Project Rules
 
-All project rules are defined in `.claude/rules/`.
+- **CLAUDE.md** — Repository-specific rules: domain knowledge, deliverables, project-specific conventions
+- **`.claude/rules/`** — Reusable rules that are not repository-specific, split into one file per topic
