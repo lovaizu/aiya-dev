@@ -9,11 +9,15 @@ if [ -d "$dir" ]; then
   exit 1
 fi
 
+parent_dir="$(pwd)"
 mkdir "$dir" && cd "$dir"
+trap 'cd "$parent_dir" && rm -rf "$dir"' EXIT
+
 git clone --bare "$repo_url" .bare
 echo "gitdir: ./.bare" > .git
 git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
 git fetch origin
 git worktree add main main
 
+trap - EXIT
 echo "Done! Run: cd $dir && ./main/scripts/hi.sh <branch-name or path>"

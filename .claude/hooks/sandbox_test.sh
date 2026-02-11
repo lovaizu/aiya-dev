@@ -93,8 +93,8 @@ echo "=== Path checks: deny outside repo ==="
 assert_decision "Read: /etc/passwd" "deny" \
   "$(mk_json Read '{"file_path": "/etc/passwd"}')"
 
-assert_decision "Write: /tmp/evil.txt" "deny" \
-  "$(mk_json Write '{"file_path": "/tmp/evil.txt", "content": "test"}')"
+assert_decision "Write: /var/evil.txt" "deny" \
+  "$(mk_json Write '{"file_path": "/var/evil.txt", "content": "test"}')"
 
 assert_decision "Edit: /etc/hosts" "deny" \
   "$(mk_json Edit '{"file_path": "/etc/hosts", "old_string": "a", "new_string": "b"}')"
@@ -105,14 +105,49 @@ assert_decision "Glob: /etc" "deny" \
 assert_decision "Grep: /etc" "deny" \
   "$(mk_json Grep '{"pattern": "root", "path": "/etc"}')"
 
-assert_decision "NotebookEdit: /tmp/test.ipynb" "deny" \
-  "$(mk_json NotebookEdit '{"notebook_path": "/tmp/test.ipynb", "new_source": "x"}')"
+assert_decision "NotebookEdit: /var/test.ipynb" "deny" \
+  "$(mk_json NotebookEdit '{"notebook_path": "/var/test.ipynb", "new_source": "x"}')"
 
 # Path that is a prefix of repo but not a subdirectory
 # e.g., repo is /home/kiyoh/.../limitaions-by-pretoolusehook
 #        path is /home/kiyoh/.../limitaions-by-pretoolusehook-other
 assert_decision "Read: repo-prefix path (not subdirectory)" "deny" \
   "$(mk_json Read "{\"file_path\": \"${REPO_ROOT}-other/file.txt\"}")"
+
+# ============================================================
+echo "=== Path checks: allow Claude Code memory directory ==="
+# ============================================================
+
+assert_decision "Read: ~/.claude/projects/ memory file" "allow" \
+  "$(mk_json Read "{\"file_path\": \"$HOME/.claude/projects/test/memory/MEMORY.md\"}")"
+
+assert_decision "Write: ~/.claude/projects/ memory file" "allow" \
+  "$(mk_json Write "{\"file_path\": \"$HOME/.claude/projects/test/memory/notes.md\", \"content\": \"test\"}")"
+
+assert_decision "Read: ~/.claude/projects dir itself" "allow" \
+  "$(mk_json Read "{\"file_path\": \"$HOME/.claude/projects\"}")"
+
+assert_decision "Read: ~/.claude/settings.json (denied)" "deny" \
+  "$(mk_json Read "{\"file_path\": \"$HOME/.claude/settings.json\"}")"
+
+assert_decision "Write: ~/.claude/hooks/sandbox.sh (denied)" "deny" \
+  "$(mk_json Write "{\"file_path\": \"$HOME/.claude/hooks/sandbox.sh\", \"content\": \"exit 0\"}")"
+
+assert_decision "Read: ~/.claude root (denied)" "deny" \
+  "$(mk_json Read "{\"file_path\": \"$HOME/.claude/somefile\"}")"
+
+# ============================================================
+echo "=== Path checks: allow TMPDIR ==="
+# ============================================================
+
+assert_decision "Read: /tmp file" "allow" \
+  "$(mk_json Read '{"file_path": "/tmp/test-sandbox/file.txt"}')"
+
+assert_decision "Write: /tmp file" "allow" \
+  "$(mk_json Write '{"file_path": "/tmp/test-sandbox/output.txt", "content": "test"}')"
+
+assert_decision "Glob: /tmp directory" "allow" \
+  "$(mk_json Glob '{"pattern": "*.sh", "path": "/tmp/test-sandbox"}')"
 
 # ============================================================
 echo "=== Path checks: traversal normalization ==="
@@ -137,7 +172,7 @@ echo "=== Self-protection: deny Write/Edit to protected paths ==="
 assert_decision "Write: .claude/hooks/sandbox.sh" "deny" \
   "$(mk_json Write "{\"file_path\": \"$REPO_ROOT/.claude/hooks/sandbox.sh\", \"content\": \"exit 0\"}")"
 
-assert_decision "Write: .claude/hooks/new-hook.sh" "deny" \
+assert_decision "Write: .claude/hooks/new-hook.sh (allowed, not sandbox.sh)" "allow" \
   "$(mk_json Write "{\"file_path\": \"$REPO_ROOT/.claude/hooks/new-hook.sh\", \"content\": \"exit 0\"}")"
 
 assert_decision "Edit: .claude/settings.json" "deny" \
@@ -146,7 +181,7 @@ assert_decision "Edit: .claude/settings.json" "deny" \
 assert_decision "Edit: .claude/settings.local.json" "deny" \
   "$(mk_json Edit "{\"file_path\": \"$REPO_ROOT/.claude/settings.local.json\", \"old_string\": \"a\", \"new_string\": \"b\"}")"
 
-assert_decision "NotebookEdit: .claude/hooks/test.ipynb" "deny" \
+assert_decision "NotebookEdit: .claude/hooks/test.ipynb (allowed, not sandbox.sh)" "allow" \
   "$(mk_json NotebookEdit "{\"notebook_path\": \"$REPO_ROOT/.claude/hooks/test.ipynb\", \"new_source\": \"x\"}")"
 
 # ============================================================
@@ -207,17 +242,11 @@ assert_decision "WebSearch: always allowed" "allow" \
 echo "=== Network: ALLOWED_DOMAINS_FILE unset ==="
 # ============================================================
 
-(
-  unset ALLOWED_DOMAINS_FILE
-  assert_decision "WebFetch: ALLOWED_DOMAINS_FILE unset" "deny" \
-    "$(mk_json WebFetch '{"url": "https://api.anthropic.com/v1", "prompt": "test"}')"
-)
+ALLOWED_DOMAINS_FILE="" assert_decision "WebFetch: ALLOWED_DOMAINS_FILE unset" "deny" \
+  "$(mk_json WebFetch '{"url": "https://api.anthropic.com/v1", "prompt": "test"}')"
 
-(
-  unset ALLOWED_DOMAINS_FILE
-  assert_decision "Bash curl: ALLOWED_DOMAINS_FILE unset" "deny" \
-    "$(mk_json Bash '{"command": "curl https://api.anthropic.com", "description": "test"}')"
-)
+ALLOWED_DOMAINS_FILE="" assert_decision "Bash curl: ALLOWED_DOMAINS_FILE unset" "deny" \
+  "$(mk_json Bash '{"command": "curl https://api.anthropic.com", "description": "test"}')"
 
 # ============================================================
 echo "=== Bash destructive: disk operations ==="
@@ -237,6 +266,9 @@ assert_decision "parted /dev/sda" "deny" \
 
 assert_decision "dd if=/dev/zero of=/dev/sda" "deny" \
   "$(mk_json Bash '{"command": "dd if=/dev/zero of=/dev/sda bs=1M", "description": "test"}')"
+
+assert_decision "dd of=/dev/sda (without if=/dev/)" "deny" \
+  "$(mk_json Bash '{"command": "dd of=/dev/sda bs=1M", "description": "test"}')"
 
 assert_decision "> /dev/sda (overwrite device)" "deny" \
   "$(mk_json Bash '{"command": "echo x > /dev/sda", "description": "test"}')"
@@ -347,6 +379,145 @@ assert_decision "dd without device (safe)" "allow" \
   "$(mk_json Bash '{"command": "dd if=input.bin of=output.bin", "description": "test"}')"
 
 # ============================================================
+echo "=== Bash paths: deny outside allowed locations ==="
+# ============================================================
+
+assert_decision "Bash: cat /etc/passwd" "deny" \
+  "$(mk_json Bash '{"command": "cat /etc/passwd", "description": "test"}')"
+
+assert_decision "Bash: ls /home/otheruser" "deny" \
+  "$(mk_json Bash '{"command": "ls /home/otheruser", "description": "test"}')"
+
+assert_decision "Bash: bash /opt/script.sh" "deny" \
+  "$(mk_json Bash '{"command": "bash /opt/script.sh", "description": "test"}')"
+
+# ============================================================
+echo "=== Bash paths: allow inside repo ==="
+# ============================================================
+
+assert_decision "Bash: cat file inside repo" "allow" \
+  "$(mk_json Bash "{\"command\": \"cat $REPO_ROOT/CLAUDE.md\", \"description\": \"test\"}")"
+
+assert_decision "Bash: bash script inside repo" "allow" \
+  "$(mk_json Bash "{\"command\": \"bash $REPO_ROOT/scripts/up_test.sh\", \"description\": \"test\"}")"
+
+# ============================================================
+echo "=== Bash paths: allow TMPDIR ==="
+# ============================================================
+
+assert_decision "Bash: cat /tmp file" "allow" \
+  "$(mk_json Bash '{"command": "cat /tmp/test-dir/file.txt", "description": "test"}')"
+
+assert_decision "Bash: rm -rf /tmp test dir" "allow" \
+  "$(mk_json Bash '{"command": "rm -rf /tmp/test-sandbox", "description": "test"}')"
+
+# ============================================================
+echo "=== Bash paths: allow /dev/ paths ==="
+# ============================================================
+
+assert_decision "Bash: echo to /dev/null" "allow" \
+  "$(mk_json Bash '{"command": "echo test > /dev/null", "description": "test"}')"
+
+assert_decision "Bash: cat /dev/urandom" "allow" \
+  "$(mk_json Bash '{"command": "head -c 32 /dev/urandom | base64", "description": "test"}')"
+
+# ============================================================
+echo "=== Bash paths: deny quoted paths outside repo ==="
+# ============================================================
+
+assert_decision "Bash: cat double-quoted /etc/passwd" "deny" \
+  "$(mk_json Bash '{"command": "cat \"/etc/passwd\"", "description": "test"}')"
+
+assert_decision "Bash: cat single-quoted /etc/passwd" "deny" \
+  "$(mk_json Bash '{"command": "cat '"'"'/etc/passwd'"'"'", "description": "test"}')"
+
+assert_decision "Bash: ls double-quoted /home/otheruser" "deny" \
+  "$(mk_json Bash '{"command": "ls \"/home/otheruser\"", "description": "test"}')"
+
+assert_decision "Bash: cat double-quoted repo path (allow)" "allow" \
+  "$(mk_json Bash "{\"command\": \"cat \\\"$REPO_ROOT/CLAUDE.md\\\"\", \"description\": \"test\"}")"
+
+assert_decision "Bash: cat single-quoted /tmp path (allow)" "allow" \
+  "$(mk_json Bash '{"command": "cat '"'"'/tmp/test-file.txt'"'"'", "description": "test"}')"
+
+assert_decision "Bash: echo to double-quoted /dev/null (allow)" "allow" \
+  "$(mk_json Bash '{"command": "echo test > \"/dev/null\"", "description": "test"}')"
+
+# ============================================================
+echo "=== Bash paths: deny redirect to outside paths ==="
+# ============================================================
+
+assert_decision "Bash: input redirect </etc/passwd" "deny" \
+  "$(mk_json Bash '{"command": "cat</etc/passwd", "description": "test"}')"
+
+assert_decision "Bash: output redirect >/etc/passwd" "deny" \
+  "$(mk_json Bash '{"command": ">/etc/passwd", "description": "test"}')"
+
+assert_decision "Bash: append redirect >>/opt/script.sh" "deny" \
+  "$(mk_json Bash '{"command": "echo x>>/opt/script.sh", "description": "test"}')"
+
+assert_decision "Bash: fd redirect 2>/home/otheruser/log" "deny" \
+  "$(mk_json Bash '{"command": "cmd 2>/home/otheruser/log", "description": "test"}')"
+
+assert_decision "Bash: redirect to /tmp (allow)" "allow" \
+  "$(mk_json Bash '{"command": "echo test>/tmp/output.txt", "description": "test"}')"
+
+assert_decision "Bash: redirect to /dev/null no space (allow)" "allow" \
+  "$(mk_json Bash '{"command": "cmd 2>/dev/null", "description": "test"}')"
+
+# ============================================================
+echo "=== Bash paths: deny assignment to outside paths ==="
+# ============================================================
+
+assert_decision "Bash: DEST=/etc/passwd" "deny" \
+  "$(mk_json Bash '{"command": "DEST=/etc/passwd", "description": "test"}')"
+
+assert_decision "Bash: export VAR=/opt/script.sh" "deny" \
+  "$(mk_json Bash '{"command": "export VAR=/opt/script.sh", "description": "test"}')"
+
+assert_decision "Bash: VAR=/tmp/safe (allow)" "allow" \
+  "$(mk_json Bash '{"command": "VAR=/tmp/safe-file", "description": "test"}')"
+
+assert_decision "Bash: VAR=relative (allow)" "allow" \
+  "$(mk_json Bash '{"command": "DEST=relative/path", "description": "test"}')"
+
+# ============================================================
+echo "=== Bash paths: deny parenthesized outside paths ==="
+# ============================================================
+
+assert_decision "Bash: subshell (/etc/script)" "deny" \
+  "$(mk_json Bash '{"command": "(/etc/script.sh)", "description": "test"}')"
+
+assert_decision "Bash: cmd substitution $(/opt/script.sh)" "deny" \
+  "$(mk_json Bash '{"command": "$(/opt/script.sh)", "description": "test"}')"
+
+assert_decision "Bash: subshell with /tmp (allow)" "allow" \
+  "$(mk_json Bash '{"command": "(/tmp/test-script.sh)", "description": "test"}')"
+
+# ============================================================
+echo "=== Bash paths: deny tilde traversal ==="
+# ============================================================
+
+assert_decision "Bash: tilde traversal ~/../../etc/passwd" "deny" \
+  "$(mk_json Bash '{"command": "cat ~/../../etc/passwd", "description": "test"}')"
+
+assert_decision "Bash: tilde path ~/sensitive-file" "deny" \
+  "$(mk_json Bash '{"command": "cat ~/sensitive-file", "description": "test"}')"
+
+assert_decision "Bash: tilde with double-dot ~/../../../opt/x" "deny" \
+  "$(mk_json Bash '{"command": "cat ~/../../../opt/x", "description": "test"}')"
+
+# ============================================================
+echo "=== Bash paths: URL paths not falsely detected ==="
+# ============================================================
+
+assert_decision "Bash: curl URL path not extracted" "allow" \
+  "$(mk_json Bash '{"command": "curl https://api.anthropic.com/v1/messages", "description": "test"}')"
+
+assert_decision "Bash: scp remote path not extracted" "deny" \
+  "$(mk_json Bash '{"command": "scp user@evil.example.com:/etc/passwd .", "description": "test"}')"
+
+# ============================================================
 echo "=== Bash network: allowed domains ==="
 # ============================================================
 
@@ -403,6 +574,25 @@ assert_decision "Task tool" "allow" \
 
 assert_decision "Unknown tool" "allow" \
   "$(mk_json SomeNewTool '{"arg": "value"}')"
+
+# ============================================================
+echo "=== Content commands: skip destructive check ==="
+# ============================================================
+
+assert_decision "git commit with dd in message" "allow" \
+  "$(mk_json Bash '{"command": "git commit -m \"dd if=/dev/zero of=/dev/sda\"", "description": "test"}')"
+
+assert_decision "gh pr edit with destructive text in body" "allow" \
+  "$(mk_json Bash '{"command": "gh pr edit 25 --body \"rm -rf / and dd of=/dev/sda\"", "description": "test"}')"
+
+assert_decision "gh pr create with destructive text in body" "allow" \
+  "$(mk_json Bash '{"command": "gh pr create --title \"test\" --body \"shutdown -h now\"", "description": "test"}')"
+
+assert_decision "gh issue create with destructive text in body" "allow" \
+  "$(mk_json Bash '{"command": "gh issue create --body \"mkfs /dev/sda\"", "description": "test"}')"
+
+assert_decision "gh issue edit with destructive text in body" "allow" \
+  "$(mk_json Bash '{"command": "gh issue edit 1 --body \"reboot the server\"", "description": "test"}')"
 
 # ============================================================
 echo ""

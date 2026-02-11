@@ -5,7 +5,7 @@ set -euo pipefail
 # sandbox.sh - PreToolUse hook for Claude Code
 #
 # Enforces:
-#   1. File access restricted to repository
+#   1. File access restricted to allowed locations
 #   2. Network access restricted to allowed domains
 #   3. System-destructive commands blocked
 #   4. Hook self-protection
@@ -16,8 +16,15 @@ set -euo pipefail
 # ============================================================
 
 INPUT=$(cat)
-TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name')
-CWD=$(echo "$INPUT" | jq -r '.cwd')
+eval "$(echo "$INPUT" | jq -r '
+  @sh "TOOL_NAME=\(.tool_name // "")",
+  @sh "CWD=\(.cwd // "")",
+  @sh "FILE_PATH=\(.tool_input.file_path // "")",
+  @sh "NOTEBOOK_PATH=\(.tool_input.notebook_path // "")",
+  @sh "INPUT_PATH=\(.tool_input.path // "")",
+  @sh "URL_FIELD=\(.tool_input.url // "")",
+  @sh "COMMAND_STR=\(.tool_input.command // "")"
+')"
 
 REPO_ROOT=$(cd "$CWD" && git rev-parse --show-toplevel 2>/dev/null) || {
   echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Cannot determine repository root"}}' >&1
@@ -63,11 +70,13 @@ allow() {
 #           2. Canonicalize with realpath -m (resolves .. and symlinks
 #              for existing components; does not require path to exist)
 #   Allow:  resolved path == REPO_ROOT or starts with REPO_ROOT/
-#   Deny:   resolved path is outside REPO_ROOT
+#   Allow:  resolved path is under ~/.claude/projects/ (memory directory)
+#   Allow:  resolved path is under TMPDIR (defaults to /tmp)
+#   Deny:   resolved path is outside all allowed locations
 #
 # Self-protection spec:
 #   Protected paths:
-#     - $REPO_ROOT/.claude/hooks/*   (hook scripts)
+#     - $REPO_ROOT/.claude/hooks/sandbox.sh  (hook script)
 #     - $REPO_ROOT/.claude/settings.json
 #     - $REPO_ROOT/.claude/settings.local.json
 #   Deny:   Write/Edit/NotebookEdit targeting protected paths
@@ -84,6 +93,19 @@ check_path() {
   local resolved
   resolved=$(realpath -m "$path" 2>/dev/null) || resolved="$path"
 
+  # Allow Claude Code memory directory (~/.claude/projects)
+  local claude_projects_dir="${HOME}/.claude/projects"
+  if [[ "$resolved" == "$claude_projects_dir"/* || "$resolved" == "$claude_projects_dir" ]]; then
+    return 0
+  fi
+
+  # Allow TMPDIR (defaults to /tmp)
+  local tmp_dir
+  tmp_dir=$(realpath -m "${TMPDIR:-/tmp}" 2>/dev/null) || tmp_dir="${TMPDIR:-/tmp}"
+  if [[ "$resolved" == "$tmp_dir"/* || "$resolved" == "$tmp_dir" ]]; then
+    return 0
+  fi
+
   if [[ "$resolved" != "$REPO_ROOT"/* && "$resolved" != "$REPO_ROOT" ]]; then
     deny "File access outside repository denied: $resolved"
   fi
@@ -98,7 +120,7 @@ check_self_protection() {
   local resolved
   resolved=$(realpath -m "$path" 2>/dev/null) || resolved="$path"
 
-  if [[ "$resolved" == "$REPO_ROOT/.claude/hooks"* ]] ||
+  if [[ "$resolved" == "$REPO_ROOT/.claude/hooks/sandbox.sh" ]] ||
      [[ "$resolved" == "$REPO_ROOT/.claude/settings.json" ]] ||
      [[ "$resolved" == "$REPO_ROOT/.claude/settings.local.json" ]]; then
     deny "Self-protection: modification of hook configuration denied: $resolved"
@@ -183,7 +205,7 @@ check_domain() {
 # Bash-specific checks
 #
 # Self-protection spec:
-#   Deny if command string contains: .claude/(hooks|settings.(json|local.json))
+#   Deny if command string contains: .claude/hooks/sandbox.sh or .claude/settings.(json|local.json)
 #   Note: best-effort pattern match; can be bypassed via encoding/indirection
 #
 # Destructive command spec:
@@ -193,13 +215,25 @@ check_domain() {
 #     - Init:     \binit\s+[06]\b
 #     - Firewall: \b(iptables|ip6tables|ufw)\b
 #     - Root rm:  \brm\s+(-rf|-fr)\s+/($|\s|\*)  (only / and /*)
-#     - Device:   \bdd\b.*\bif=/dev/
+#     - Device:   \bdd\b.*\b(if|of)=/dev/
 #     - Chmod:    \bchmod\s+(-R\s+)?777\s+/
 #     - Chown:    \bchown\s+.*root.*\s+/
 #     - Fork:     :\(\)\s*\{.*:\|:
 #     - Disk IO:  >\s*/dev/(sd|hd|nvme|vd)
 #   Note: word boundary match means "echo shutdown" is also denied
 #         (accepted false positive for safety)
+#
+# Path extraction spec:
+#   Steps:  1. Strip URLs (https?://...) to avoid false positives
+#           2. Expand ~/ to $HOME/ so tilde paths become absolute
+#           3. Replace shell delimiters ("'<>=()) with spaces
+#              so paths after quotes, redirects, assignments, and
+#              parens are visible to the extraction regex
+#           4. Extract absolute paths preceded by whitespace or start of string
+#              regex: (?:^|(?<=\s))/[a-zA-Z0-9_./-]+
+#           5. Allow /dev/null, /dev/stdin, /dev/stdout, /dev/stderr,
+#              /dev/zero, /dev/urandom, /dev/random
+#           6. Check remaining paths with check_path (allowed locations)
 #
 # Network command spec:
 #   Trigger: command contains \b(curl|wget|ssh|scp|rsync|nc|ncat|
@@ -217,9 +251,16 @@ check_domain() {
 check_bash_self_protection() {
   local cmd="$1"
 
-  if echo "$cmd" | grep -qE '\.claude/(hooks|settings\.(json|local\.json))'; then
+  if echo "$cmd" | grep -qE '\.claude/hooks/sandbox\.sh|\.claude/settings\.(json|local\.json)'; then
     deny "Self-protection: Bash command targets hook configuration"
   fi
+}
+
+is_content_command() {
+  local cmd="$1"
+  echo "$cmd" | grep -qE '\bgit\s+commit\b' && return 0
+  echo "$cmd" | grep -qE '\bgh\s+(pr|issue)\s+(create|edit)\b' && return 0
+  return 1
 }
 
 check_destructive_commands() {
@@ -250,9 +291,9 @@ check_destructive_commands() {
     deny "Destructive command denied: recursive force delete at root level"
   fi
 
-  # dd with device input
-  if echo "$cmd" | grep -qE '\bdd\b.*\bif=/dev/'; then
-    deny "Destructive command denied: dd with device input"
+  # dd with device input or output
+  if echo "$cmd" | grep -qE '\bdd\b.*\b(if|of)=/dev/'; then
+    deny "Destructive command denied: dd with device input/output"
   fi
 
   # chmod 777 on absolute paths
@@ -274,6 +315,39 @@ check_destructive_commands() {
   if echo "$cmd" | grep -qE '>\s*/dev/(sd|hd|nvme|vd)'; then
     deny "Destructive command denied: overwrite disk device"
   fi
+}
+
+check_bash_paths() {
+  local cmd="$1"
+
+  # Strip URLs to avoid false positives on URL path components
+  local stripped
+  stripped=$(echo "$cmd" | sed -E "s|https?://[^[:space:]\"']+||g")
+
+  # Expand ~/ to $HOME/ so tilde paths become absolute paths
+  stripped="${stripped//\~\//$HOME/}"
+
+  # Normalize shell delimiters to spaces so the path regex can find
+  # paths preceded by quotes, redirects, assignment, or parens
+  stripped=$(echo "$stripped" | sed "s/[\"'<>=()]/ /g")
+
+  # Extract absolute paths preceded by whitespace or at start of string
+  local paths
+  paths=$(echo "$stripped" | grep -oP '(?:^|(?<=\s))/[a-zA-Z0-9_./-]+' || true)
+
+  [[ -z "$paths" ]] && return 0
+
+  while IFS= read -r path; do
+    [[ -z "$path" ]] && continue
+
+    # Allow common /dev/ paths used in shell commands
+    case "$path" in
+      /dev/null|/dev/stdin|/dev/stdout|/dev/stderr|/dev/zero|/dev/urandom|/dev/random)
+        continue ;;
+    esac
+
+    check_path "$path"
+  done <<< "$paths"
 }
 
 check_bash_network() {
@@ -326,75 +400,56 @@ check_bash_network() {
 }
 
 # ============================================================
-# Main dispatch
+# Main dispatch — field-based extraction
 #
 # Spec:
-#   Write/Edit:    self-protection → path check → allow
-#   Read:          path check → allow
-#   NotebookEdit:  self-protection → path check → allow
-#   Glob/Grep:     path check on .path param (if present) → allow
-#   WebFetch:      extract domain from .url → domain check → allow
-#   WebSearch:     allow (uses Anthropic infrastructure, no direct fetch)
-#   Bash:          self-protection → destructive check → network check → allow
-#   Other tools:   allow
+#   All fields are extracted in a single jq call at script start
+#   using eval + @sh for safe shell-variable assignment.
+#
+#   Pre-extracted variables:
+#     TOOL_NAME, CWD, FILE_PATH, NOTEBOOK_PATH, INPUT_PATH,
+#     URL_FIELD, COMMAND_STR
+#
+#   Flow:
+#     1. Self-protection: for write tools, check path fields
+#     2. Path check: check FILE_PATH, NOTEBOOK_PATH, INPUT_PATH
+#     3. Domain check: extract domain from URL_FIELD
+#        (WebSearch exempt — uses Anthropic infrastructure)
+#     4. Command handling: self-protection, destructive, network
+#     5. Allow
 # ============================================================
 
+# --- 1. Self-protection for write tools ---
 case "$TOOL_NAME" in
   Write|Edit)
-    file_path=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
-    check_self_protection "$file_path"
-    check_path "$file_path"
-    allow
+    check_self_protection "$FILE_PATH"
     ;;
-
-  Read)
-    file_path=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
-    check_path "$file_path"
-    allow
-    ;;
-
   NotebookEdit)
-    file_path=$(echo "$INPUT" | jq -r '.tool_input.notebook_path // empty')
-    check_self_protection "$file_path"
-    check_path "$file_path"
-    allow
-    ;;
-
-  Glob)
-    path=$(echo "$INPUT" | jq -r '.tool_input.path // empty')
-    [[ -n "$path" ]] && check_path "$path"
-    allow
-    ;;
-
-  Grep)
-    path=$(echo "$INPUT" | jq -r '.tool_input.path // empty')
-    [[ -n "$path" ]] && check_path "$path"
-    allow
-    ;;
-
-  WebFetch)
-    url=$(echo "$INPUT" | jq -r '.tool_input.url // empty')
-    if [[ -n "$url" ]]; then
-      domain=$(extract_domain_from_url "$url")
-      check_domain "$domain"
-    fi
-    allow
-    ;;
-
-  WebSearch)
-    # WebSearch goes through Anthropic's infrastructure
-    allow
-    ;;
-
-  Bash)
-    command_str=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
-    check_bash_self_protection "$command_str"
-    check_destructive_commands "$command_str"
-    check_bash_network "$command_str"
-    allow
-    ;;
-
-  *)
-    allow
+    check_self_protection "$NOTEBOOK_PATH"
     ;;
 esac
+
+# --- 2. Path checks from known fields ---
+[[ -n "$FILE_PATH" ]] && check_path "$FILE_PATH"
+[[ -n "$NOTEBOOK_PATH" ]] && check_path "$NOTEBOOK_PATH"
+[[ -n "$INPUT_PATH" ]] && check_path "$INPUT_PATH"
+
+# --- 3. Domain checks from URL fields ---
+if [[ "$TOOL_NAME" != "WebSearch" && -n "$URL_FIELD" ]]; then
+  domain=$(extract_domain_from_url "$URL_FIELD")
+  check_domain "$domain"
+fi
+
+# --- 4. Command field handling ---
+if [[ -n "$COMMAND_STR" ]]; then
+  if is_content_command "$COMMAND_STR"; then
+    check_bash_network "$COMMAND_STR"
+  else
+    check_bash_self_protection "$COMMAND_STR"
+    check_destructive_commands "$COMMAND_STR"
+    check_bash_paths "$COMMAND_STR"
+    check_bash_network "$COMMAND_STR"
+  fi
+fi
+
+allow

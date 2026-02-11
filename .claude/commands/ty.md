@@ -1,3 +1,7 @@
+---
+disable-model-invocation: true
+---
+
 The developer has approved. Detect which approval gate this is and proceed.
 
 1. Find the PR for the current branch: `gh pr list --head <branch-name> --json number,title,body,url`
