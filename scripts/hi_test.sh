@@ -91,10 +91,16 @@ echo "--- hi.sh: extracts basename from path ---"
 bash "$tmp/ciya-dev/main/scripts/hi.sh" /some/path/feature-x >/dev/null 2>&1
 check "worktree created with basename" test -d "$tmp/ciya-dev/feature-x"
 
+# --- Test: resumes existing main worktree ---
+echo "--- hi.sh: resumes main worktree ---"
+CLAUDE_TEST_ENV="$tmp/claude_env_main" bash "$tmp/ciya-dev/main/scripts/hi.sh" main >/dev/null 2>&1
+check "main worktree still exists" test -d "$tmp/ciya-dev/main"
+check "claude launched for main" test -f "$tmp/claude_env_main"
+
 # --- Test: ALLOWED_DOMAINS_FILE default ---
 echo "--- hi.sh: ALLOWED_DOMAINS_FILE default ---"
 (cd "$tmp/ciya-dev" && git worktree add env-test -b env-test origin/main >/dev/null 2>&1)
-CLAUDE_TEST_ENV="$tmp/claude_env_default" bash "$tmp/ciya-dev/main/scripts/hi.sh" env-test >/dev/null 2>&1
+ALLOWED_DOMAINS_FILE="" CLAUDE_TEST_ENV="$tmp/claude_env_default" bash "$tmp/ciya-dev/main/scripts/hi.sh" env-test >/dev/null 2>&1
 expected_adf="$tmp/ciya-dev/env-test/.claude/hooks/allowed-domains.txt"
 if grep -q "^ALLOWED_DOMAINS_FILE=$expected_adf$" "$tmp/claude_env_default" 2>/dev/null; then
   pass "ALLOWED_DOMAINS_FILE set to default"

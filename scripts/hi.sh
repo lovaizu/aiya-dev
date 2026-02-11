@@ -30,7 +30,7 @@ fi
 
 # Create new worktree
 cd "$worktree_root"
-git -C "$worktree_root/main" pull --ff-only origin main
+git -C "$worktree_root/main" pull --ff-only origin main || echo "Warning: could not update main (continuing)" >&2
 
 git worktree add "$branch" -b "$branch" origin/main
 cd "$worktree_root/$branch"
