@@ -225,12 +225,15 @@ check_domain() {
 #
 # Path extraction spec:
 #   Steps:  1. Strip URLs (https?://...) to avoid false positives
-#           2. Extract absolute paths preceded by whitespace or start of string
+#           2. Expand ~/ to $HOME/ so tilde paths become absolute
+#           3. Replace shell delimiters ("'<>=()) with spaces
+#              so paths after quotes, redirects, assignments, and
+#              parens are visible to the extraction regex
+#           4. Extract absolute paths preceded by whitespace or start of string
 #              regex: (?:^|(?<=\s))/[a-zA-Z0-9_./-]+
-#           3. Allow /dev/null, /dev/stdin, /dev/stdout, /dev/stderr,
+#           5. Allow /dev/null, /dev/stdin, /dev/stdout, /dev/stderr,
 #              /dev/zero, /dev/urandom, /dev/random
-#           4. Check remaining paths with check_path (allowed locations)
-#   Note: paths preceded by = (e.g., dd if=/dev/zero) are not extracted
+#           6. Check remaining paths with check_path (allowed locations)
 #
 # Network command spec:
 #   Trigger: command contains \b(curl|wget|ssh|scp|rsync|nc|ncat|
@@ -313,6 +316,13 @@ check_bash_paths() {
   # Strip URLs to avoid false positives on URL path components
   local stripped
   stripped=$(echo "$cmd" | sed -E "s|https?://[^[:space:]\"']+||g")
+
+  # Expand ~/ to $HOME/ so tilde paths become absolute paths
+  stripped="${stripped//\~\//$HOME/}"
+
+  # Normalize shell delimiters to spaces so the path regex can find
+  # paths preceded by quotes, redirects, assignment, or parens
+  stripped=$(echo "$stripped" | sed "s/[\"'<>=()]/ /g")
 
   # Extract absolute paths preceded by whitespace or at start of string
   local paths
