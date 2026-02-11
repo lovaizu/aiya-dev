@@ -423,6 +423,92 @@ assert_decision "Bash: cat /dev/urandom" "allow" \
   "$(mk_json Bash '{"command": "head -c 32 /dev/urandom | base64", "description": "test"}')"
 
 # ============================================================
+echo "=== Bash paths: deny quoted paths outside repo ==="
+# ============================================================
+
+assert_decision "Bash: cat double-quoted /etc/passwd" "deny" \
+  "$(mk_json Bash '{"command": "cat \"/etc/passwd\"", "description": "test"}')"
+
+assert_decision "Bash: cat single-quoted /etc/passwd" "deny" \
+  "$(mk_json Bash '{"command": "cat '"'"'/etc/passwd'"'"'", "description": "test"}')"
+
+assert_decision "Bash: ls double-quoted /home/otheruser" "deny" \
+  "$(mk_json Bash '{"command": "ls \"/home/otheruser\"", "description": "test"}')"
+
+assert_decision "Bash: cat double-quoted repo path (allow)" "allow" \
+  "$(mk_json Bash "{\"command\": \"cat \\\"$REPO_ROOT/CLAUDE.md\\\"\", \"description\": \"test\"}")"
+
+assert_decision "Bash: cat single-quoted /tmp path (allow)" "allow" \
+  "$(mk_json Bash '{"command": "cat '"'"'/tmp/test-file.txt'"'"'", "description": "test"}')"
+
+assert_decision "Bash: echo to double-quoted /dev/null (allow)" "allow" \
+  "$(mk_json Bash '{"command": "echo test > \"/dev/null\"", "description": "test"}')"
+
+# ============================================================
+echo "=== Bash paths: deny redirect to outside paths ==="
+# ============================================================
+
+assert_decision "Bash: input redirect </etc/passwd" "deny" \
+  "$(mk_json Bash '{"command": "cat</etc/passwd", "description": "test"}')"
+
+assert_decision "Bash: output redirect >/etc/passwd" "deny" \
+  "$(mk_json Bash '{"command": ">/etc/passwd", "description": "test"}')"
+
+assert_decision "Bash: append redirect >>/opt/script.sh" "deny" \
+  "$(mk_json Bash '{"command": "echo x>>/opt/script.sh", "description": "test"}')"
+
+assert_decision "Bash: fd redirect 2>/home/otheruser/log" "deny" \
+  "$(mk_json Bash '{"command": "cmd 2>/home/otheruser/log", "description": "test"}')"
+
+assert_decision "Bash: redirect to /tmp (allow)" "allow" \
+  "$(mk_json Bash '{"command": "echo test>/tmp/output.txt", "description": "test"}')"
+
+assert_decision "Bash: redirect to /dev/null no space (allow)" "allow" \
+  "$(mk_json Bash '{"command": "cmd 2>/dev/null", "description": "test"}')"
+
+# ============================================================
+echo "=== Bash paths: deny assignment to outside paths ==="
+# ============================================================
+
+assert_decision "Bash: DEST=/etc/passwd" "deny" \
+  "$(mk_json Bash '{"command": "DEST=/etc/passwd", "description": "test"}')"
+
+assert_decision "Bash: export VAR=/opt/script.sh" "deny" \
+  "$(mk_json Bash '{"command": "export VAR=/opt/script.sh", "description": "test"}')"
+
+assert_decision "Bash: VAR=/tmp/safe (allow)" "allow" \
+  "$(mk_json Bash '{"command": "VAR=/tmp/safe-file", "description": "test"}')"
+
+assert_decision "Bash: VAR=relative (allow)" "allow" \
+  "$(mk_json Bash '{"command": "DEST=relative/path", "description": "test"}')"
+
+# ============================================================
+echo "=== Bash paths: deny parenthesized outside paths ==="
+# ============================================================
+
+assert_decision "Bash: subshell (/etc/script)" "deny" \
+  "$(mk_json Bash '{"command": "(/etc/script.sh)", "description": "test"}')"
+
+assert_decision "Bash: cmd substitution $(/opt/script.sh)" "deny" \
+  "$(mk_json Bash '{"command": "$(/opt/script.sh)", "description": "test"}')"
+
+assert_decision "Bash: subshell with /tmp (allow)" "allow" \
+  "$(mk_json Bash '{"command": "(/tmp/test-script.sh)", "description": "test"}')"
+
+# ============================================================
+echo "=== Bash paths: deny tilde traversal ==="
+# ============================================================
+
+assert_decision "Bash: tilde traversal ~/../../etc/passwd" "deny" \
+  "$(mk_json Bash '{"command": "cat ~/../../etc/passwd", "description": "test"}')"
+
+assert_decision "Bash: tilde path ~/sensitive-file" "deny" \
+  "$(mk_json Bash '{"command": "cat ~/sensitive-file", "description": "test"}')"
+
+assert_decision "Bash: tilde with double-dot ~/../../../opt/x" "deny" \
+  "$(mk_json Bash '{"command": "cat ~/../../../opt/x", "description": "test"}')"
+
+# ============================================================
 echo "=== Bash paths: URL paths not falsely detected ==="
 # ============================================================
 
