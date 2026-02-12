@@ -9,28 +9,30 @@ Follow this workflow for every task:
 2. **Issue creation**
    - Draft the issue title in user story format (see `issue-format.md`)
    - Draft the issue body with Situation, Pain, Benefit, and Success Criteria
-   - Present the draft to the developer
+   - Create the issue on GitHub with `gh issue create`
+   - Present the GitHub issue link to the developer
 
-3. **Approval (Issue)**
-   - Wait for developer approval of the issue
-   - If denied, revise based on feedback and re-propose
-   - Once approved, create the issue on GitHub with `gh issue create`
+3. **Goal approval**
+   - The developer reviews the issue on GitHub's web page
+   - If the developer leaves comments on the issue, address them using `/fb`
+   - Wait for the developer to approve the goal
 
 4. **PR description**
    - Draft the PR title (concise, describes purpose)
    - Draft the PR body with Approach and Tasks (see `pr-format.md`)
    - Ensure Approach addresses each Pain from the issue
    - Ensure Tasks are traceable to the Approach
-   - Present the draft to the developer
-
-5. **Approval (PR description)**
-   - Wait for developer approval of the PR description
-   - If denied, revise based on feedback and re-propose
-
-6. **Implementation**
    - Create an empty commit: `git commit --allow-empty`
    - Push the branch and create the PR: `gh pr create`
    - Name the branch per the rules in `git-conventions.md`
+   - Present the GitHub PR link to the developer
+
+5. **Approach approval**
+   - The developer reviews the PR description on GitHub's web page
+   - If the developer leaves comments on the PR, address them using `/fb`
+   - Wait for the developer to approve the approach
+
+6. **Implementation**
    - Write code and make commits (split by purpose, one logical change per commit)
    - Push commits to the remote branch
 
@@ -57,17 +59,15 @@ Follow this workflow for every task:
    - Append the Success Criteria Check table to the PR body (see `pr-format.md`)
    - If any criterion is NG, address it and re-check
 
-10. **PR review**
+10. **Goal verification**
     - Request review from the developer
     - Address feedback (see PR Review Process in `pr-format.md`)
+    - Wait for developer approval
 
-11. **Approval (PR)**
-    - Wait for developer approval of the PR
-
-12. **Merge**
+11. **Merge**
     - Verify approval: `gh pr view <number> --json reviewDecision` must return `APPROVED`
     - If not `APPROVED`, confirm with the developer before proceeding
     - Squash-merge: `gh pr merge <number> --squash`
     - The developer will clean up the worktree and branch using `bb.sh`
 
-13. **Done**
+12. **Done**
