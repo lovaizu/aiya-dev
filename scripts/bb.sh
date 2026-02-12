@@ -34,8 +34,8 @@ worktree_root="$(cd "$(dirname "$0")/../.." && pwd)"
 pr_state=""
 pr_number=""
 if pr_json="$(gh pr list --head "$branch" --json number,state --jq '.[0] // empty' 2>/dev/null)" && [ -n "$pr_json" ]; then
-  pr_number="$(echo "$pr_json" | gh pr list --head "$branch" --json number --jq '.[0].number' 2>/dev/null || true)"
-  pr_state="$(gh pr view "$pr_number" --json state --jq '.state' 2>/dev/null || true)"
+  pr_number="$(echo "$pr_json" | grep -o '"number":[0-9]*' | grep -o '[0-9]*')"
+  pr_state="$(echo "$pr_json" | grep -o '"state":"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"')"
 fi
 
 incomplete=false
