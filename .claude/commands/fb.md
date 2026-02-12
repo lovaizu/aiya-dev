@@ -1,11 +1,13 @@
 Address feedback on the current branch.
 
 1. Find the PR for the current branch: `gh pr list --head <branch-name> --json number,url,body`
-2. Extract the associated issue number from the PR body (look for "Closes #N")
+2. Find the associated issue:
+   a. If PR exists, extract issue number from PR body (look for "Closes #N")
+   b. If no PR exists, find the issue from conversation context or by searching: `gh issue list --state open --json number,title,url`
 
 ## Issue feedback
 
-3. If an issue number was found, fetch issue comments: `gh api repos/{owner}/{repo}/issues/{number}/comments`
+3. If an issue was found, fetch issue comments: `gh api repos/{owner}/{repo}/issues/{number}/comments`
 4. Identify developer comments that have not been responded to (no subsequent comment from the agent)
 5. Work through unanswered issue comments one by one:
    - If something is unclear, reply on the issue asking for clarification
@@ -14,7 +16,7 @@ Address feedback on the current branch.
 
 ## PR feedback
 
-6. Fetch PR review comments: `gh api repos/{owner}/{repo}/pulls/{number}/comments`
+6. If a PR exists, fetch PR review comments: `gh api repos/{owner}/{repo}/pulls/{number}/comments`
 7. Also check PR review threads for unresolved conversations: `gh api repos/{owner}/{repo}/pulls/{number}/reviews`
 8. Work through unresolved PR comments one by one, following the PR Review Process in `pr-format.md`:
    - If something is unclear, reply asking for clarification
