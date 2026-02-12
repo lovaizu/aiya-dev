@@ -24,7 +24,7 @@ Follow this workflow for every task:
    - Ensure Tasks are traceable to the Approach
    - Create an empty commit: `git commit --allow-empty`
    - Push the branch and create the PR: `gh pr create`
-   - Name the branch per the rules in `git-conventions.md`
+   - Ensure the branch name follows the rules in `git-conventions.md`
    - Present the GitHub PR link to the developer
 
 5. **Approach approval**

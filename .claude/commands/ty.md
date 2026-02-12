@@ -19,5 +19,6 @@ Proceed to step 6 of the workflow: implement the solution, make commits, and pus
 
 Proceed to step 11 of the workflow:
 1. Verify approval: `gh pr view <number> --json reviewDecision` must return `APPROVED`
-2. Squash merge: `gh pr merge <number> --squash`
-3. Tell the developer to clean up by running `bb.sh <branch-name>` from the main worktree
+2. If `reviewDecision` is not `APPROVED`, tell the developer and wait for them to approve the PR on GitHub before merging
+3. Squash merge: `gh pr merge <number> --squash`
+4. Tell the developer to clean up by running `bb.sh <branch-name>` from the main worktree

@@ -16,7 +16,7 @@ Address feedback on the current branch.
 
 6. Fetch PR review comments: `gh api repos/{owner}/{repo}/pulls/{number}/comments`
 7. Also check PR review threads for unresolved conversations: `gh api repos/{owner}/{repo}/pulls/{number}/reviews`
-8. Work through unresolved PR comments one by one, following the PR Review Process in CLAUDE.md:
+8. Work through unresolved PR comments one by one, following the PR Review Process in `pr-format.md`:
    - If something is unclear, reply asking for clarification
    - When making a fix: commit, push, then reply to the review comment with a link to the commit
    - Include `Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>` in replies
