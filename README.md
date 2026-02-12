@@ -33,8 +33,36 @@ For a new branch, this creates a worktree. For an existing branch, it enters the
 | Command | Description |
 |---------|-------------|
 | `/go`   | Start a new task or resume an in-progress task |
-| `/fb`   | Address PR review feedback |
+| `/fb`   | Address feedback (Issue comments and PR review comments) |
 | `/ty`   | Approve and proceed to the next workflow step |
+
+#### Workflow and commands
+
+```
+/go ── start or resume at any point
+
+ 1. Hearing
+ 2. Issue creation ─────────── Issue on GitHub
+ ┌───────────────────────────────────────────┐
+ │ Gate 1: Goal approval                     │
+ │ Developer reviews Issue · /fb · /ty       │
+ └───────────────────────────────────────────┘
+ 4. PR description ─────────── PR on GitHub
+ ┌───────────────────────────────────────────┐
+ │ Gate 2: Approach approval                 │
+ │ Developer reviews PR · /fb · /ty          │
+ └───────────────────────────────────────────┘
+ 6. Implementation
+ 7. Consistency check
+ 8. Expert review
+ 9. SC check
+ ┌───────────────────────────────────────────┐
+ │ Gate 3: Goal verification                 │
+ │ Developer reviews code · /fb · /ty        │
+ └───────────────────────────────────────────┘
+11. Merge
+12. Done
+```
 
 ### 5. Clean up
 
