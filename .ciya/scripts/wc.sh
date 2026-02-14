@@ -4,7 +4,7 @@ set -euo pipefail
 # wc.sh — Welcome! One-time bootstrap for ciya-dev.
 # Creates: ciya-dev/ with bare clone + .env + up.sh symlink
 #
-# Usage: curl -fsSL <raw-url>/wc.sh | bash
+# Usage: curl -fsSL <raw-url>/wc.sh -o wc.sh && bash wc.sh
 
 repo_url="https://github.com/lovaizu/ciya-dev.git"
 dir="ciya-dev"
@@ -16,16 +16,17 @@ fi
 
 parent_dir="$(pwd)"
 mkdir "$dir" && cd "$dir"
-trap 'cd "$parent_dir" && rm -rf "$dir"' EXIT
+abs_dir="$parent_dir/$dir"
+trap 'rm -rf "$abs_dir"' EXIT
 
 # Bare clone
-git clone --bare "$repo_url" .bare
+git clone -q --bare "$repo_url" .bare
 echo "gitdir: ./.bare" > .git
 git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
 git fetch origin
 
 # Extract .env from repo
-git show HEAD:.env.example > .env
+git show origin/main:.env.example > .env
 
 # Symlink up.sh (will work once main/ worktree is created by up.sh)
 # Create main worktree first so the symlink target exists

@@ -2,8 +2,10 @@
 set -euo pipefail
 
 # Test up.sh — worktree management (excluding tmux/CC launch)
+# Sources the actual up.sh with REPO_ROOT pre-set and launch_tmux stubbed.
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+UP_SH="$SCRIPT_DIR/up.sh"
 
 pass=0
 fail=0
@@ -20,7 +22,6 @@ run_test() {
   fi
 }
 
-# --- Setup: create a fake bare repo structure ---
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
 
@@ -28,97 +29,72 @@ setup_repo() {
   local testdir="$1"
   mkdir -p "$testdir"
 
-  # Create a staging repo
   local staging="$tmpdir/staging-$$-$RANDOM"
-  mkdir "$staging" && cd "$staging"
-  git init -q
-  git checkout -q -b main
+  (
+    mkdir "$staging" && cd "$staging"
+    git init -q
+    git checkout -q -b main
 
-  mkdir -p .ciya/scripts
-  cat > .ciya/scripts/up.sh <<'EOF'
+    mkdir -p .ciya/scripts
+    cat > .ciya/scripts/up.sh <<'EOF'
 #!/usr/bin/env bash
 echo "placeholder"
 EOF
-  chmod +x .ciya/scripts/up.sh
+    chmod +x .ciya/scripts/up.sh
 
-  cat > .env.example <<'EOF'
+    cat > .env.example <<'EOF'
 GH_TOKEN=github_pat_real_token
 EOF
 
-  git add -A
-  git commit -q -m "initial"
+    git add -A
+    git commit -q -m "initial"
+  )
 
-  # Create bare clone
-  cd "$testdir"
-  git clone -q --bare "$staging" .bare
-  echo "gitdir: ./.bare" > .git
-  git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-  git fetch -q origin
+  (
+    cd "$testdir"
+    git clone -q --bare "$staging" .bare
+    echo "gitdir: ./.bare" > .git
+    git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+    git fetch -q origin
 
-  # Create main worktree
-  git worktree add main main 2>/dev/null
+    git worktree add main main 2>/dev/null
 
-  # Create .env with real token (not placeholder)
-  cat > .env <<'EOF'
+    cat > .env <<'EOF'
 GH_TOKEN=ghp_realtoken123
 EOF
+  )
 
   rm -rf "$staging"
 }
 
-# Run up.sh in test mode (skip tmux/CC launch, prerequisites check)
-# We test the worktree management functions by sourcing up.sh and calling them
-run_up_functions() {
+# Source up.sh functions and run worktree management in a subshell.
+# Stubs launch_tmux, check_prerequisites, check_env.
+run_up() {
   local repo_root="$1"
   local count="$2"
 
-  cd "$repo_root"
   (
-    REPO_ROOT="$repo_root"
-    CONFIG_FILE="$repo_root/.up_config"
+    # Pre-set variables before sourcing up.sh
+    export REPO_ROOT="$repo_root"
+    export CONFIG_FILE="$repo_root/.up_config"
+    export SESSION_NAME="ciya-test-$$"
 
-    # Source the functions from up.sh (stop before main execution)
-    ensure_main_worktree() {
-      if [ ! -d "$REPO_ROOT/main" ]; then
-        git -C "$REPO_ROOT" worktree add main main
-      fi
-    }
+    # Source the actual up.sh (BASH_SOURCE guard prevents main from running)
+    source "$UP_SH"
 
-    ensure_work_worktrees() {
-      local c="$1"
-      for i in $(seq 1 "$c"); do
-        local name="work-$i"
-        local wt_dir="$REPO_ROOT/$name"
-        if [ ! -d "$wt_dir" ]; then
-          git -C "$REPO_ROOT" fetch -q origin 2>/dev/null || true
-          git -C "$REPO_ROOT" worktree add "$name" -b "$name" origin/main 2>/dev/null
-        fi
-      done
-    }
+    # Stub functions we can't run in tests
+    launch_tmux() { :; }
+    check_prerequisites() { :; }
+    check_env() { :; }
+    load_env() { :; }
 
-    remove_excess_worktrees() {
-      local c="$1"
-      local i=$((c + 1))
-      while true; do
-        local name="work-$i"
-        local wt_dir="$REPO_ROOT/$name"
-        [ -d "$wt_dir" ] || break
-        if [ -n "$(git -C "$wt_dir" status --porcelain 2>/dev/null)" ]; then
-          echo "DIRTY:$name" >&2
-          exit 1
-        fi
-        git -C "$REPO_ROOT" worktree remove "$name"
-        if git -C "$REPO_ROOT" rev-parse --verify "$name" >/dev/null 2>&1; then
-          git -C "$REPO_ROOT" branch -D "$name" >/dev/null 2>&1
-        fi
-        i=$((i + 1))
-      done
-    }
-
-    echo "$count" > "$CONFIG_FILE"
+    cd "$REPO_ROOT"
+    local c
+    c="$(get_worker_count "$count")"
     ensure_main_worktree
-    ensure_work_worktrees "$count"
-    remove_excess_worktrees "$count"
+    ensure_work_worktrees "$c"
+    remove_excess_worktrees "$c"
+    echo "$c" > "$CONFIG_FILE"
   )
 }
 
@@ -126,7 +102,7 @@ run_up_functions() {
 test_creates_4_worktrees() {
   local testdir="$tmpdir/test1"
   setup_repo "$testdir"
-  run_up_functions "$testdir" 4
+  run_up "$testdir" 4
   [ -d "$testdir/work-1" ] &&
   [ -d "$testdir/work-2" ] &&
   [ -d "$testdir/work-3" ] &&
@@ -135,35 +111,31 @@ test_creates_4_worktrees() {
 }
 run_test "up.sh 4 creates work-1 through work-4" test_creates_4_worktrees
 
-# --- Test 2: up.sh (no arg) reuses previous config ---
-test_reuses_config() {
-  local testdir="$tmpdir/test1"  # reuse from test 1
-  local saved
-  saved="$(cat "$testdir/.up_config")"
-  [ "$saved" = "4" ]
+# --- Test 2: Config file stores worker count ---
+test_stores_config() {
+  [ -f "$tmpdir/test1/.up_config" ] &&
+  [ "$(cat "$tmpdir/test1/.up_config")" = "4" ]
 }
-run_test "Config file stores worker count" test_reuses_config
+run_test "Config file stores worker count" test_stores_config
 
 # --- Test 3: up.sh 6 adds work-5 and work-6 ---
 test_adds_worktrees() {
-  local testdir="$tmpdir/test1"
-  run_up_functions "$testdir" 6
-  [ -d "$testdir/work-5" ] &&
-  [ -d "$testdir/work-6" ] &&
-  [ ! -d "$testdir/work-7" ]
+  run_up "$tmpdir/test1" 6
+  [ -d "$tmpdir/test1/work-5" ] &&
+  [ -d "$tmpdir/test1/work-6" ] &&
+  [ ! -d "$tmpdir/test1/work-7" ]
 }
 run_test "up.sh 6 adds work-5 and work-6" test_adds_worktrees
 
 # --- Test 4: up.sh 2 removes work-3 through work-6 ---
 test_removes_worktrees() {
-  local testdir="$tmpdir/test1"
-  run_up_functions "$testdir" 2
-  [ -d "$testdir/work-1" ] &&
-  [ -d "$testdir/work-2" ] &&
-  [ ! -d "$testdir/work-3" ] &&
-  [ ! -d "$testdir/work-4" ] &&
-  [ ! -d "$testdir/work-5" ] &&
-  [ ! -d "$testdir/work-6" ]
+  run_up "$tmpdir/test1" 2
+  [ -d "$tmpdir/test1/work-1" ] &&
+  [ -d "$tmpdir/test1/work-2" ] &&
+  [ ! -d "$tmpdir/test1/work-3" ] &&
+  [ ! -d "$tmpdir/test1/work-4" ] &&
+  [ ! -d "$tmpdir/test1/work-5" ] &&
+  [ ! -d "$tmpdir/test1/work-6" ]
 }
 run_test "up.sh 2 removes work-3 through work-6" test_removes_worktrees
 
@@ -171,39 +143,59 @@ run_test "up.sh 2 removes work-3 through work-6" test_removes_worktrees
 test_dirty_prevents_removal() {
   local testdir="$tmpdir/test5"
   setup_repo "$testdir"
-  run_up_functions "$testdir" 3
+  run_up "$testdir" 3
 
-  # Make work-2 dirty
   echo "uncommitted" > "$testdir/work-2/dirty.txt"
 
-  # Trying to reduce to 1 should fail because work-2 is dirty
-  ! run_up_functions "$testdir" 1 2>/dev/null
+  ! run_up "$testdir" 1 2>/dev/null
 }
 run_test "Dirty worktree prevents removal" test_dirty_prevents_removal
 
-# --- Test 6: Invalid argument errors ---
-# Each invalid arg tested in its own subshell since exit 1 terminates the subshell
+# --- Test 6: Invalid argument rejected ---
 test_invalid_arg() {
-  ! (echo "abc" | grep -qE '^[1-9][0-9]*$') &&
-  ! (echo "0" | grep -qE '^[1-9][0-9]*$') &&
-  ! (echo "-1" | grep -qE '^[1-9][0-9]*$') &&
-  (echo "4" | grep -qE '^[1-9][0-9]*$')
+  ! (
+    export REPO_ROOT="$tmpdir/test1"
+    export CONFIG_FILE="$tmpdir/test1/.up_config"
+    source "$UP_SH"
+    get_worker_count "abc"
+  ) 2>/dev/null &&
+  ! (
+    export REPO_ROOT="$tmpdir/test1"
+    export CONFIG_FILE="$tmpdir/test1/.up_config"
+    source "$UP_SH"
+    get_worker_count "0"
+  ) 2>/dev/null &&
+  ! (
+    export REPO_ROOT="$tmpdir/test1"
+    export CONFIG_FILE="$tmpdir/test1/.up_config"
+    source "$UP_SH"
+    get_worker_count "-1"
+  ) 2>/dev/null
 }
-run_test "Invalid argument rejected, valid accepted" test_invalid_arg
+run_test "Invalid argument rejected" test_invalid_arg
 
 # --- Test 7: No config and no argument errors ---
 test_no_config_no_arg() {
   local testdir="$tmpdir/test7"
   setup_repo "$testdir"
-  local config_file="$testdir/.up_config"
-  # No config file should exist after fresh setup
-  [ ! -f "$config_file" ]
-  # After running with count, config should exist
-  run_up_functions "$testdir" 2
-  [ -f "$config_file" ] &&
-  [ "$(cat "$config_file")" = "2" ]
+  [ ! -f "$testdir/.up_config" ] &&
+  ! (
+    export REPO_ROOT="$testdir"
+    export CONFIG_FILE="$testdir/.up_config"
+    source "$UP_SH"
+    get_worker_count ""
+  ) 2>/dev/null
 }
-run_test "Config created after first run, absent before" test_no_config_no_arg
+run_test "No config and no argument errors" test_no_config_no_arg
+
+# --- Test 8: Config created after successful run ---
+test_config_after_run() {
+  local testdir="$tmpdir/test7"
+  run_up "$testdir" 2
+  [ -f "$testdir/.up_config" ] &&
+  [ "$(cat "$testdir/.up_config")" = "2" ]
+}
+run_test "Config created after successful run" test_config_after_run
 
 # --- Results ---
 echo ""

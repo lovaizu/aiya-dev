@@ -2,6 +2,7 @@
 set -euo pipefail
 
 # Test wc.sh — bootstrap script
+# Tests run the actual wc.sh with repo_url overridden via sed.
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 WC_SH="$SCRIPT_DIR/wc.sh"
@@ -28,62 +29,38 @@ trap 'rm -rf "$tmpdir"' EXIT
 # Create a fake remote repo with the files wc.sh expects
 fake_remote="$tmpdir/remote.git"
 staging="$tmpdir/staging"
-mkdir "$staging" && cd "$staging"
-git init -q
-git checkout -q -b main
+mkdir "$staging"
+(
+  cd "$staging"
+  git init -q
+  git checkout -q -b main
 
-# Create .env.example
-cat > .env.example <<'EOF'
+  cat > .env.example <<'EOF'
 GH_TOKEN=github_pat_xxxxx
 EOF
 
-# Create .ciya/scripts/up.sh
-mkdir -p .ciya/scripts
-cat > .ciya/scripts/up.sh <<'UPEOF'
+  mkdir -p .ciya/scripts
+  cat > .ciya/scripts/up.sh <<'UPEOF'
 #!/usr/bin/env bash
 echo "up.sh placeholder"
 UPEOF
-chmod +x .ciya/scripts/up.sh
+  chmod +x .ciya/scripts/up.sh
 
-git add -A
-git commit -q -m "initial"
+  git add -A
+  git commit -q -m "initial"
+)
 
-# Create bare clone as fake remote
 git clone -q --bare "$staging" "$fake_remote"
 
-cd "$tmpdir"
+# Create a patched copy of wc.sh that uses our fake remote
+patched_wc="$tmpdir/wc.sh"
+sed "s|repo_url=.*|repo_url=\"$fake_remote\"|" "$WC_SH" > "$patched_wc"
+chmod +x "$patched_wc"
 
-# --- Helper: run wc.sh with overridden repo_url ---
+# --- Helper: run the patched wc.sh in a given directory ---
 run_wc() {
-  # Override repo_url inside wc.sh by creating a wrapper
   local workdir="$1"
-  cd "$workdir"
-  env -i HOME="$HOME" PATH="$PATH" bash -c "
-    set -euo pipefail
-    repo_url='$fake_remote'
-    dir='ciya-dev'
-
-    if [ -d \"\$dir\" ]; then
-      echo 'Error: directory \"\$dir\" already exists' >&2
-      exit 1
-    fi
-
-    parent_dir=\"\$(pwd)\"
-    mkdir \"\$dir\" && cd \"\$dir\"
-    trap 'cd \"\$parent_dir\" && rm -rf \"\$dir\"' EXIT
-
-    git clone --bare \"\$repo_url\" .bare
-    echo 'gitdir: ./.bare' > .git
-    git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
-    git fetch origin
-
-    git show HEAD:.env.example > .env
-
-    git worktree add main main
-    ln -s main/.ciya/scripts/up.sh up.sh
-
-    trap - EXIT
-  "
+  (cd "$workdir" && bash "$patched_wc")
 }
 
 # --- Test 1: Creates ciya-dev/ directory ---
@@ -129,6 +106,36 @@ test_error_if_exists() {
   ! run_wc "$workdir" 2>/dev/null
 }
 run_test "Errors if ciya-dev/ already exists" test_error_if_exists
+
+# --- Test 7: Cleanup on failure (trap) ---
+test_cleanup_on_failure() {
+  # Create a patched wc.sh that fails after mkdir (remove .env.example from remote)
+  local bad_remote="$tmpdir/bad_remote.git"
+  local bad_staging="$tmpdir/bad_staging"
+  mkdir "$bad_staging"
+  (
+    cd "$bad_staging"
+    git init -q
+    git checkout -q -b main
+    # No .env.example → git show will fail
+    echo "dummy" > README.md
+    git add -A
+    git commit -q -m "no env"
+  )
+  git clone -q --bare "$bad_staging" "$bad_remote"
+
+  local bad_wc="$tmpdir/bad_wc.sh"
+  sed "s|repo_url=.*|repo_url=\"$bad_remote\"|" "$WC_SH" > "$bad_wc"
+  chmod +x "$bad_wc"
+
+  local workdir="$tmpdir/test7"
+  mkdir "$workdir"
+  # Should fail because .env.example doesn't exist
+  ! (cd "$workdir" && bash "$bad_wc") 2>/dev/null
+  # ciya-dev/ should be cleaned up by trap
+  [ ! -d "$workdir/ciya-dev" ]
+}
+run_test "Cleanup on failure (trap removes ciya-dev/)" test_cleanup_on_failure
 
 # --- Results ---
 echo ""

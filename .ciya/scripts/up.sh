@@ -10,10 +10,20 @@ set -euo pipefail
 #
 # Prerequisites: claude, git, tmux, gh
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-CONFIG_FILE="$REPO_ROOT/.up_config"
-SESSION_NAME="ciya"
+# Allow tests to override these variables before sourcing
+if [ -z "${REPO_ROOT:-}" ]; then
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+  REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+  # Sanity check: verify we're in a bare repo structure
+  if [ ! -d "$REPO_ROOT/.bare" ] && [ ! -f "$REPO_ROOT/.git" ]; then
+    echo "Error: $REPO_ROOT does not look like a ciya-dev repo root" >&2
+    exit 1
+  fi
+fi
+
+CONFIG_FILE="${CONFIG_FILE:-$REPO_ROOT/.up_config}"
+SESSION_NAME="${SESSION_NAME:-ciya}"
 
 usage() {
   cat <<'USAGE'
@@ -50,12 +60,12 @@ check_env() {
   local env_file="$REPO_ROOT/.env"
   if [ ! -f "$env_file" ]; then
     echo "Error: .env not found. Copy .env.example and edit it:" >&2
-    echo "  cp .env.example .env && vi .env" >&2
+    echo "  vi .env" >&2
     exit 1
   fi
   if grep -q "github_pat_xxxxx" "$env_file"; then
     echo "Error: .env still has placeholder tokens. Edit it first:" >&2
-    echo "  vi $env_file" >&2
+    echo "  vi .env" >&2
     exit 1
   fi
 }
@@ -78,7 +88,6 @@ get_worker_count() {
       echo "Error: argument must be a positive integer, got '$arg'" >&2
       exit 1
     fi
-    echo "$arg" > "$CONFIG_FILE"
     echo "$arg"
   elif [ -f "$CONFIG_FILE" ]; then
     cat "$CONFIG_FILE"
@@ -94,18 +103,23 @@ ensure_main_worktree() {
     git -C "$REPO_ROOT" worktree add main main
   fi
   # Update main
-  git -C "$REPO_ROOT/main" pull --ff-only origin main 2>/dev/null || true
+  git -C "$REPO_ROOT/main" pull --ff-only origin main 2>/dev/null \
+    || echo "Warning: could not update main worktree" >&2
 }
 
 ensure_work_worktrees() {
   local count="$1"
+  local needs_fetch=true
   for i in $(seq 1 "$count"); do
     local name="work-$i"
     local wt_dir="$REPO_ROOT/$name"
     if [ ! -d "$wt_dir" ]; then
+      # Fetch once before creating any new worktrees
+      if [ "$needs_fetch" = true ]; then
+        git -C "$REPO_ROOT" fetch origin
+        needs_fetch=false
+      fi
       echo "Creating worktree: $name"
-      # Create worktree with a temporary branch from origin/main
-      git -C "$REPO_ROOT" fetch origin
       git -C "$REPO_ROOT" worktree add "$name" -b "$name" origin/main
     fi
   done
@@ -121,15 +135,16 @@ remove_excess_worktrees() {
 
     # Check if worktree is dirty
     if [ -n "$(git -C "$wt_dir" status --porcelain 2>/dev/null)" ]; then
-      echo "Error: $name has uncommitted changes. Run /bb first, then retry." >&2
+      echo "Error: $name has uncommitted changes. Commit or stash first, then retry." >&2
       exit 1
     fi
 
+    # Check for unpushed commits (use -d to refuse deleting unmerged branches)
     echo "Removing worktree: $name"
     git -C "$REPO_ROOT" worktree remove "$name"
-    # Delete the temporary branch if it still exists
     if git -C "$REPO_ROOT" rev-parse --verify "$name" >/dev/null 2>&1; then
-      git -C "$REPO_ROOT" branch -D "$name"
+      git -C "$REPO_ROOT" branch -d "$name" 2>/dev/null \
+        || echo "Warning: branch '$name' has unmerged commits, kept for safety" >&2
     fi
     i=$((i + 1))
   done
@@ -138,10 +153,10 @@ remove_excess_worktrees() {
 launch_tmux() {
   local count="$1"
 
-  # If session already exists, attach to it
+  # If session already exists, kill it to apply new configuration
   if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
-    echo "Attaching to existing tmux session: $SESSION_NAME"
-    exec tmux attach -t "$SESSION_NAME"
+    echo "Terminating existing tmux session to apply new configuration..."
+    tmux kill-session -t "$SESSION_NAME"
   fi
 
   load_env
@@ -165,21 +180,33 @@ launch_tmux() {
   exec tmux attach -t "$SESSION_NAME"
 }
 
-# --- Main ---
+# --- Main (only when executed directly, not sourced) ---
 
-if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
-  usage
-  exit 0
+main() {
+  if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+    usage
+    exit 0
+  fi
+
+  check_prerequisites
+  check_env
+  load_env
+
+  cd "$REPO_ROOT"
+
+  local count
+  count="$(get_worker_count "${1:-}")"
+
+  ensure_main_worktree
+  ensure_work_worktrees "$count"
+  remove_excess_worktrees "$count"
+
+  # Save config after worktrees are successfully set up
+  echo "$count" > "$CONFIG_FILE"
+
+  launch_tmux "$count"
+}
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  main "$@"
 fi
-
-check_prerequisites
-check_env
-
-cd "$REPO_ROOT"
-
-count="$(get_worker_count "${1:-}")"
-
-ensure_main_worktree
-ensure_work_worktrees "$count"
-remove_excess_worktrees "$count"
-launch_tmux "$count"
