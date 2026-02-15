@@ -1,6 +1,10 @@
 # ciya-dev
 
-A development workflow framework for running multiple Claude Code instances in parallel using git worktrees and tmux. Each instance works on a separate issue with structured gates for goal alignment, approach review, and verification.
+Claude Code in your area — multiple Claude Code instances, right in your dev environment.
+
+- **No babysitting** — Three gates (Goal → Approach → Verification) guard quality so you don't have to watch over every step
+- **Scale as one** — Async checkpoints let you run multiple instances in parallel and multiply your throughput
+- **Walk away anytime** — Save and restore work state on demand. Step away, come back, pick up where you left off
 
 ## Workflow
 
@@ -36,7 +40,11 @@ flowchart TD
     BB["/bb — Interrupt & save"] -.-> WR
 ```
 
-At any point, `/bb` saves progress to `.ciya/issues/nnnnn/resume.md` for later resumption.
+**How it works:**
+- You create issues in `main/` and assign them to `work-N/` panes — the agent handles the rest autonomously
+- Your only job is to review at three gates: approve the goal, the approach, and the final result
+- You interact through four commands (`/hi`, `/ty`, `/fb`, `/bb`) and review comments on GitHub — nothing else
+- At any point, `/bb` saves progress for later resumption
 
 ## Usage
 
@@ -49,7 +57,7 @@ cd ciya-dev
 vi .env    # Set GH_TOKEN and other tokens
 ```
 
-### Starting worktrees and CC
+### Starting sessions
 
 ```bash
 ./up.sh 4
