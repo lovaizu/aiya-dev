@@ -60,8 +60,14 @@ Start or resume work on the specified issue:
 1. Read `resume.md` from the work records directory — it contains the workflow step and next actions
 2. Read `design.md` if it exists
 3. If a PR exists, read its current state
-4. Report the current status to the developer
-5. Resume from the workflow step indicated in `resume.md`
+4. **Cross-reference for staleness:** Compare the workflow step in `resume.md` against the actual PR/branch state:
+   - Check `git log origin/main..HEAD --oneline` for implementation commits
+   - Check the PR's review state (`reviewDecision`) and review comments
+   - If `resume.md` says "step 6" but implementation commits exist, the actual state is ahead — advance to the appropriate step
+   - If `resume.md` references files or decisions that no longer exist on the branch, note the discrepancies
+   - Report any staleness detected: "resume.md says X, but actual state is Y. Advancing to step Z."
+5. Report the current status to the developer
+6. Resume from the **actual** workflow step (which may differ from what `resume.md` says if staleness was detected)
 
 ### If starting fresh
 

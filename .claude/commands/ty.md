@@ -73,7 +73,8 @@ The developer confirmed the goal is achieved. Proceed to merge:
 1. Verify approval: `gh pr view <number> --json reviewDecision` must return `APPROVED`
 2. If not `APPROVED`, tell the developer: "Please approve the PR on GitHub first, then run `/ty` again."
 3. Squash merge: `gh pr merge <number> --squash --delete-branch`
-4. Tell the developer: "Merged! This worktree is ready for the next `/hi <issue-number>`."
+4. Clean up work records: delete `resume.md` from the work records directory (`.ciya/issues/nnnnn/`) if it exists, since the issue is now complete and the saved state is no longer needed
+5. Tell the developer: "Merged! This worktree is ready for the next `/hi <issue-number>`."
 
 <example>
 Developer: /ty

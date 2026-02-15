@@ -32,18 +32,44 @@ Run: `gh repo view --json owner,name --jq '.owner.login + "/" + .name'`
 
 ## Address feedback
 
-Fetch comments based on the target type:
-- **PR:** `gh api repos/{owner}/{repo}/pulls/{number}/comments` and `gh api repos/{owner}/{repo}/pulls/{number}/reviews`
-- **Issue:** `gh api repos/{owner}/{repo}/issues/{number}/comments`
+### For PRs — use GraphQL to get unresolved threads
+
+```bash
+gh api graphql -f query='
+{
+  repository(owner: "{owner}", name: "{repo}") {
+    pullRequest(number: {number}) {
+      reviewThreads(first: 50) {
+        nodes {
+          isResolved
+          comments(first: 20) {
+            nodes {
+              author { login }
+              body
+              createdAt
+              databaseId
+            }
+          }
+        }
+      }
+    }
+  }
+}'
+```
+
+Filter to threads where `isResolved == false`. Within each thread, read the full conversation — the last comment from the reviewer is the one that needs a response.
+
+### For Issues — use REST API
+
+`gh api repos/{owner}/{repo}/issues/{number}/comments`
 
 Identify feedback comments — those that contain questions, requested changes, or suggestions. Exclude:
 - Bot-generated comments
 - Simple acknowledgments ("LGTM", "thanks", approvals)
-- Replies you have already made
 
 If `gh api` fails (auth error, rate limit), tell the developer and suggest checking `gh auth status`.
 
-Work through feedback comments one by one, in chronological order (oldest first):
+Work through unresolved threads one by one, in chronological order (oldest first):
 
 1. If something is unclear, reply asking for clarification
 2. When making a fix: commit, push, then reply with a link to the commit
