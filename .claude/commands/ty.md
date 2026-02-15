@@ -2,22 +2,83 @@
 disable-model-invocation: true
 ---
 
-The developer has approved. Detect which approval gate this is and proceed.
+You are a development workflow assistant managing approval gates and workflow progression.
 
-1. Find the PR for the current branch: `gh pr list --head <branch-name> --json number,title,body,url`
-2. Determine the current approval gate:
+The developer has approved. Detect which gate this is and proceed.
 
-## Gate: Issue approved (no PR exists yet)
+## Usage
 
-Proceed to step 4 of the workflow: draft the PR title and body, and present it to the developer.
+Show this to the developer:
 
-## Gate: PR description approved (PR not yet created)
+```
+/ty              Approve the current gate
+```
 
-Proceed to step 6 of the workflow: implement the solution, make commits, push the branch, and create the PR with `gh pr create`. Then continue through consistency check, expert review, and success criteria check.
+## Three Gates
 
-## Gate: PR approved (PR exists and is approved)
+- **Gate 1 — Goal:** Is the issue capturing the right problem and goal?
+- **Gate 2 — Approach:** Can the PR's approach achieve the goal?
+- **Gate 3 — Goal Verification:** Has the goal been achieved?
 
-Proceed to step 12 of the workflow:
+## Detect the gate
+
+Use this decision tree:
+
+1. Detect the worktree type: `basename "$(git rev-parse --show-toplevel)"`
+2. If `main` → **Gate 1**
+3. Otherwise (any non-main worktree):
+   a. Find PR: `gh pr list --head $(git branch --show-current) --json number,title,body,url,reviewDecision`
+   b. If no PR exists → tell the developer: "No PR found. Run `/hi <issue-number>` first."
+   c. Check implementation status: `git log origin/main..HEAD --oneline`
+      - If no commits or only an empty initial commit → **Gate 2**
+      - If implementation commits exist → **Gate 3**
+
+If the gate cannot be determined, tell the developer which gate could not be identified and ask them to clarify.
+
+## Gate 1: Goal (in main/ worktree)
+
+The developer approved the issue.
+
+1. Tell the developer: "Issue approved. Run `/hi <issue-number>` in a work-N/ worktree to start implementation."
+
+<example>
+Developer: /ty
+Agent: Gate 1 — Goal approved.
+       Run `/hi 42` in a work-N/ worktree to start implementation.
+</example>
+
+## Gate 2: Approach (in work-N/, PR exists, no implementation yet)
+
+The developer approved the PR approach. Proceed to implementation:
+
+1. Follow the workflow steps in `workflow.md` starting from step 6 (Implementation):
+   - Implement the solution following the PR tasks
+   - Make commits (split by purpose, one logical change per commit)
+   - Push commits to the remote branch
+2. After implementation, continue through steps 7-9:
+   - Consistency check, expert review, success criteria check
+3. Tell the developer: "Implementation complete. Review on GitHub, then `/ty` to approve."
+
+<example>
+Developer: /ty
+Agent: Gate 2 — Approach approved. Starting implementation.
+       [implements, commits, pushes, runs checks]
+       Implementation complete. Review on GitHub, then `/ty` to approve.
+</example>
+
+## Gate 3: Goal Verification (in work-N/, PR with implementation)
+
+The developer confirmed the goal is achieved. Proceed to merge:
+
 1. Verify approval: `gh pr view <number> --json reviewDecision` must return `APPROVED`
-2. Squash merge: `gh pr merge <number> --squash`
-3. Tell the developer to clean up by running `bb.sh <branch-name>` from the main worktree
+2. If not `APPROVED`, tell the developer: "Please approve the PR on GitHub first, then run `/ty` again."
+3. Squash merge: `gh pr merge <number> --squash --delete-branch`
+4. Clean up work records: delete `resume.md` from the work records directory (`.ciya/issues/nnnnn/`) if it exists, since the issue is now complete and the saved state is no longer needed
+5. Tell the developer: "Merged! This worktree is ready for the next `/hi <issue-number>`."
+
+<example>
+Developer: /ty
+Agent: Gate 3 — Goal verification approved.
+       PR #43 is approved. Merging...
+       Merged! This worktree is ready for the next `/hi <issue-number>`.
+</example>
