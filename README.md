@@ -61,10 +61,9 @@ vi .env    # Set GH_TOKEN and other tokens
 
 ```bash
 ./up.sh 4
-# Creates work-1/ through work-4/ worktrees
-# Launches tmux session "ciya" with 5 panes:
-#   main/ | work-1/ | work-2/ | work-3/ | work-4/
-# Each pane starts Claude Code automatically
+# Opens 4 parallel workers (plus 1 for issue management)
+# Launches tmux session "ciya" with 5 panes
+# Each pane runs Claude Code automatically
 ```
 
 ### Resuming a previous session
@@ -74,11 +73,11 @@ vi .env    # Set GH_TOKEN and other tokens
 # No arguments → reads saved config (or CIYA_WORK_COUNT from .env)
 ```
 
-### Scaling worktrees up and down
+### Scaling up and down
 
 ```bash
-./up.sh 6    # Adds work-5/ and work-6/
-./up.sh 4    # Removes work-5/ and work-6/ (only if clean)
+./up.sh 6    # Scale up to 6 parallel workers
+./up.sh 4    # Scale back to 4 (removes idle workers)
 ```
 
 ### Working on issues
