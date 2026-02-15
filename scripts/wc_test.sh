@@ -27,7 +27,7 @@ tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
 
 # Create a fake remote repo with the files wc.sh expects
-fake_remote="$tmpdir/remote.git"
+fake_remote="$tmpdir/ciya-dev.git"
 staging="$tmpdir/staging"
 mkdir "$staging"
 (
@@ -54,7 +54,7 @@ git clone -q --bare "$staging" "$fake_remote"
 
 # Create a patched copy of wc.sh that uses our fake remote
 patched_wc="$tmpdir/wc.sh"
-sed "s|repo_url=.*|repo_url=\"$fake_remote\"|" "$WC_SH" > "$patched_wc"
+sed "s|CIYA_REPO_URL=\"\${CIYA_REPO_URL:-.*}\"|CIYA_REPO_URL=\"$fake_remote\"|" "$WC_SH" > "$patched_wc"
 chmod +x "$patched_wc"
 
 # --- Helper: run the patched wc.sh in a given directory ---
@@ -125,7 +125,7 @@ test_cleanup_on_failure() {
   git clone -q --bare "$bad_staging" "$bad_remote"
 
   local bad_wc="$tmpdir/bad_wc.sh"
-  sed "s|repo_url=.*|repo_url=\"$bad_remote\"|" "$WC_SH" > "$bad_wc"
+  sed "s|CIYA_REPO_URL=\"\${CIYA_REPO_URL:-.*}\"|CIYA_REPO_URL=\"$bad_remote\"|" "$WC_SH" > "$bad_wc"
   chmod +x "$bad_wc"
 
   local workdir="$tmpdir/test7"

@@ -6,9 +6,11 @@ set -euo pipefail
 #
 # Usage: curl -fsSL <raw-url>/wc.sh | bash
 
-repo_url="https://github.com/lovaizu/ciya-dev.git"
-dir="ciya-dev"
-DEFAULT_BRANCH="${DEFAULT_BRANCH:-main}"
+CIYA_REPO_URL="${CIYA_REPO_URL:-https://github.com/lovaizu/ciya-dev.git}"
+CIYA_DEFAULT_BRANCH="${CIYA_DEFAULT_BRANCH:-main}"
+
+# Derive directory name from repo URL (strip trailing .git and take basename)
+dir="$(basename "${CIYA_REPO_URL%.git}")"
 
 if [ -d "$dir" ]; then
   echo "Error: directory '$dir' already exists" >&2
@@ -21,27 +23,27 @@ abs_dir="$parent_dir/$dir"
 trap 'rm -rf "$abs_dir"' EXIT
 
 # Bare clone
-git clone -q --bare "$repo_url" .bare
+git clone -q --bare "$CIYA_REPO_URL" .bare
 echo "gitdir: ./.bare" > .git
 git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
 git fetch -q origin
 
 # Extract .env from repo
-git show "origin/$DEFAULT_BRANCH:.env.example" > .env
+git show "origin/$CIYA_DEFAULT_BRANCH:.env.example" > .env
 
 # Symlink up.sh (will work once main/ worktree is created by up.sh)
 # Create main worktree first so the symlink target exists
-git worktree add main "$DEFAULT_BRANCH"
+git worktree add main "$CIYA_DEFAULT_BRANCH"
 ln -s main/scripts/up.sh up.sh
 
 trap - EXIT
 
-cat <<'MSG'
+cat <<MSG
 
-Welcome to ciya-dev!
+Welcome to $dir!
 
 Next steps:
-  1. cd ciya-dev
+  1. cd $dir
   2. Edit .env with your tokens (GH_TOKEN is required)
   3. Run: ./up.sh <n>   (e.g., ./up.sh 4 for 4 work worktrees)
 

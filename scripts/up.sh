@@ -24,7 +24,7 @@ fi
 
 CONFIG_FILE="${CONFIG_FILE:-$REPO_ROOT/.up_config}"
 SESSION_NAME="${SESSION_NAME:-ciya}"
-DEFAULT_BRANCH="${DEFAULT_BRANCH:-main}"
+CIYA_DEFAULT_BRANCH="${CIYA_DEFAULT_BRANCH:-main}"
 
 usage() {
   cat <<'USAGE'
@@ -93,17 +93,17 @@ get_worker_count() {
   elif [ -f "$CONFIG_FILE" ]; then
     cat "$CONFIG_FILE"
   else
-    echo "1"
+    echo "${CIYA_WORK_COUNT:-1}"
   fi
 }
 
 ensure_main_worktree() {
   if [ ! -d "$REPO_ROOT/main" ]; then
     echo "Creating main worktree..."
-    git -C "$REPO_ROOT" worktree add main "$DEFAULT_BRANCH"
+    git -C "$REPO_ROOT" worktree add main "$CIYA_DEFAULT_BRANCH"
   fi
   # Update main
-  git -C "$REPO_ROOT/main" pull --ff-only origin "$DEFAULT_BRANCH" 2>/dev/null \
+  git -C "$REPO_ROOT/main" pull --ff-only origin "$CIYA_DEFAULT_BRANCH" 2>/dev/null \
     || echo "Warning: could not update main worktree" >&2
 }
 
@@ -120,7 +120,7 @@ ensure_work_worktrees() {
         needs_fetch=false
       fi
       echo "Creating worktree: $name"
-      git -C "$REPO_ROOT" worktree add "$name" -b "$name" "origin/$DEFAULT_BRANCH"
+      git -C "$REPO_ROOT" worktree add "$name" -b "$name" "origin/$CIYA_DEFAULT_BRANCH"
     fi
   done
 }
