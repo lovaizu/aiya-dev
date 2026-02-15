@@ -11,7 +11,7 @@ set -euo pipefail
 #   4. Hook self-protection
 #
 # Environment:
-#   ALLOWED_DOMAINS_FILE - Path to allowed domains list (one per line).
+#   CIYA_ALLOWED_DOMAINS_FILE - Path to allowed domains list (one per line).
 #                          If unset, all network access is denied.
 # ============================================================
 
@@ -131,9 +131,9 @@ check_self_protection() {
 # Network checks
 #
 # Domain list spec:
-#   Source: $ALLOWED_DOMAINS_FILE environment variable
+#   Source: $CIYA_ALLOWED_DOMAINS_FILE environment variable
 #   Format: one domain per line, # comments, empty lines ignored
-#   If ALLOWED_DOMAINS_FILE is unset or file not found: deny all
+#   If CIYA_ALLOWED_DOMAINS_FILE is unset or file not found: deny all
 #
 # Domain matching spec:
 #   - Case-insensitive comparison
@@ -152,10 +152,10 @@ check_self_protection() {
 # ============================================================
 
 load_allowed_domains() {
-  if [[ -z "${ALLOWED_DOMAINS_FILE:-}" ]]; then
+  if [[ -z "${CIYA_ALLOWED_DOMAINS_FILE:-}" ]]; then
     return 1
   fi
-  if [[ ! -f "$ALLOWED_DOMAINS_FILE" ]]; then
+  if [[ ! -f "$CIYA_ALLOWED_DOMAINS_FILE" ]]; then
     return 1
   fi
   return 0
@@ -175,7 +175,7 @@ is_domain_allowed() {
     if [[ "$domain" == "$entry" ]] || [[ "$domain" == *".$entry" ]]; then
       return 0
     fi
-  done < "$ALLOWED_DOMAINS_FILE"
+  done < "$CIYA_ALLOWED_DOMAINS_FILE"
 
   return 1
 }
@@ -193,7 +193,7 @@ check_domain() {
   local domain="$1"
 
   if ! load_allowed_domains; then
-    deny "Network access denied: ALLOWED_DOMAINS_FILE is not set or file not found"
+    deny "Network access denied: CIYA_ALLOWED_DOMAINS_FILE is not set or file not found"
   fi
 
   if ! is_domain_allowed "$domain"; then
@@ -245,7 +245,7 @@ check_domain() {
 #     - Domain found + in allowed list:     allow
 #     - Domain found + NOT in allowed list: deny
 #     - No domain extractable:             ask (passthrough to user)
-#     - ALLOWED_DOMAINS_FILE unset:        deny
+#     - CIYA_ALLOWED_DOMAINS_FILE unset:        deny
 # ============================================================
 
 check_bash_self_protection() {
@@ -369,7 +369,7 @@ check_bash_network() {
 
   # Network command detected - need domain list
   if ! load_allowed_domains; then
-    deny "Network access denied: ALLOWED_DOMAINS_FILE is not set or file not found"
+    deny "Network access denied: CIYA_ALLOWED_DOMAINS_FILE is not set or file not found"
   fi
 
   # Extract domains from URLs (http:// or https://)
