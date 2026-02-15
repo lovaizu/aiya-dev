@@ -12,8 +12,8 @@ set -euo pipefail
 
 # Allow tests to override these variables before sourcing
 if [ -z "${REPO_ROOT:-}" ]; then
-  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-  REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+  SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+  REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
   # Sanity check: verify we're in a bare repo structure
   if [ ! -d "$REPO_ROOT/.bare" ] && [ ! -f "$REPO_ROOT/.git" ]; then
@@ -24,6 +24,7 @@ fi
 
 CONFIG_FILE="${CONFIG_FILE:-$REPO_ROOT/.up_config}"
 SESSION_NAME="${SESSION_NAME:-ciya}"
+DEFAULT_BRANCH="${DEFAULT_BRANCH:-main}"
 
 usage() {
   cat <<'USAGE'
@@ -100,10 +101,10 @@ get_worker_count() {
 ensure_main_worktree() {
   if [ ! -d "$REPO_ROOT/main" ]; then
     echo "Creating main worktree..."
-    git -C "$REPO_ROOT" worktree add main issue-29
+    git -C "$REPO_ROOT" worktree add main "$DEFAULT_BRANCH"
   fi
   # Update main
-  git -C "$REPO_ROOT/main" pull --ff-only origin issue-29 2>/dev/null \
+  git -C "$REPO_ROOT/main" pull --ff-only origin "$DEFAULT_BRANCH" 2>/dev/null \
     || echo "Warning: could not update main worktree" >&2
 }
 
@@ -120,7 +121,7 @@ ensure_work_worktrees() {
         needs_fetch=false
       fi
       echo "Creating worktree: $name"
-      git -C "$REPO_ROOT" worktree add "$name" -b "$name" origin/issue-29
+      git -C "$REPO_ROOT" worktree add "$name" -b "$name" "origin/$DEFAULT_BRANCH"
     fi
   done
 }

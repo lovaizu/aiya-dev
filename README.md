@@ -7,7 +7,7 @@ Claude Code in your area
 ### First-time setup
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/lovaizu/ciya-dev/issue-29/scripts/wc.sh | bash
+curl -fsSL https://raw.githubusercontent.com/lovaizu/ciya-dev/main/scripts/wc.sh | bash
 
 # You now have:
 #   ciya-dev/.bare/    ← bare clone

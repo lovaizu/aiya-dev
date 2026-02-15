@@ -8,6 +8,7 @@ set -euo pipefail
 
 repo_url="https://github.com/lovaizu/ciya-dev.git"
 dir="ciya-dev"
+DEFAULT_BRANCH="${DEFAULT_BRANCH:-main}"
 
 if [ -d "$dir" ]; then
   echo "Error: directory '$dir' already exists" >&2
@@ -26,11 +27,11 @@ git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
 git fetch -q origin
 
 # Extract .env from repo
-git show origin/issue-29:.env.example > .env
+git show "origin/$DEFAULT_BRANCH:.env.example" > .env
 
 # Symlink up.sh (will work once main/ worktree is created by up.sh)
 # Create main worktree first so the symlink target exists
-git worktree add main issue-29
+git worktree add main "$DEFAULT_BRANCH"
 ln -s main/scripts/up.sh up.sh
 
 trap - EXIT
