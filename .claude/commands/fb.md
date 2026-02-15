@@ -41,7 +41,9 @@ Identify feedback comments — those that contain questions, requested changes, 
 - Simple acknowledgments ("LGTM", "thanks", approvals)
 - Replies you have already made
 
-Work through feedback comments one by one:
+If `gh api` fails (auth error, rate limit), tell the developer and suggest checking `gh auth status`.
+
+Work through feedback comments one by one, in chronological order (oldest first):
 
 1. If something is unclear, reply asking for clarification
 2. When making a fix: commit, push, then reply with a link to the commit

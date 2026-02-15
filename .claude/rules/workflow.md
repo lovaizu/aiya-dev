@@ -74,6 +74,10 @@ Follow this workflow for every task. The workflow spans two worktrees:
 12. **Done**
     - The work-N/ worktree is ready for the next `/hi <issue-number>`
 
+## Gate Rejection
+
+If the developer provides feedback instead of approving a gate, use `/fb` to address their comments and iterate until they approve with `/ty`.
+
 ## Interruption
 
 At any point during the workflow, the developer can run `/bb` to:

@@ -12,6 +12,8 @@ Show this to the developer:
 
 1. Detect the current branch: `git branch --show-current`
 2. Detect the worktree type: `basename "$(git rev-parse --show-toplevel)"`
+   - `main` → main/ worktree
+   - Otherwise → work-N/ worktree (includes `work-*`, `issue-*`, or any non-main name)
 3. If in main/, tell the developer: "/bb is for interrupting work in work-N/ worktrees."
 
 4. Check for uncommitted changes: `git status --porcelain`

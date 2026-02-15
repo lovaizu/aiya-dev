@@ -17,7 +17,7 @@ Show this to the developer:
 1. Detect the current branch: `git branch --show-current`
 2. Detect the worktree type: `basename "$(git rev-parse --show-toplevel)"`
    - If it matches `main` → main/ worktree
-   - If it matches `work-*` → work-N/ worktree
+   - Otherwise → work-N/ worktree (includes `work-*`, `issue-*`, or any non-main name)
 
 ## In main/ worktree (no arguments)
 

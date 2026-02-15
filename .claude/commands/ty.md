@@ -25,8 +25,8 @@ Show this to the developer:
 Use this decision tree:
 
 1. Detect the worktree type: `basename "$(git rev-parse --show-toplevel)"`
-2. If in `main/` → **Gate 1**
-3. If in `work-*`:
+2. If `main` → **Gate 1**
+3. Otherwise (any non-main worktree):
    a. Find PR: `gh pr list --head $(git branch --show-current) --json number,title,body,url,reviewDecision`
    b. If no PR exists → tell the developer: "No PR found. Run `/hi <issue-number>` first."
    c. Check implementation status: `git log origin/main..HEAD --oneline`
