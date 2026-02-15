@@ -22,14 +22,14 @@ flowchart TD
     G1 --> p2
     subgraph p2["Phase 2: Approach — Design means to achieve SC"]
         direction LR
-        A[Approach] --> T[Tasks]
+        A[Approach] --> T[Steps]
     end
     T -.->|achieves| SC
     p2 --> G2{{"Gate 2: Right means?"}}
     G2 --> p3
     subgraph p3["Phase 3: Delivery — Verify achievement"]
         direction LR
-        EX[Execute Tasks] --> V[Verify SC met]
+        EX[Execute Steps] --> V[Verify SC met]
     end
     p3 --> G3{{"Gate 3: Value delivered?"}}
 ```
@@ -41,8 +41,8 @@ flowchart TD
 - **Success Criteria** — Verifiable conditions that prove Benefit is achieved
 
 **PR (how):**
-- **Approach** — Means to achieve the Success Criteria
-- **Tasks** — Steps to implement the Approach, each mapped to one or more SC
+- **Approach** — SC-to-means mapping table: why this method was chosen for each SC
+- **Steps** — Concrete work steps to implement each Approach, grouped by Approach
 
 Issue-side rules:
 - Every Pain must arise from the Situation. A Pain with no Situation basis is an ungrounded assumption.
@@ -50,9 +50,9 @@ Issue-side rules:
 - Every SC must connect to a Benefit. An SC with no Benefit link is measuring the wrong thing.
 
 PR-side rules:
-- Every Task must be derivable from the Approach. A Task unrelated to the Approach indicates a misalignment.
-- Every Task must connect to at least one SC. A Task with no SC link is unnecessary.
-- Every SC must be covered by at least one Task. An uncovered SC will not be achieved.
+- Every SC must appear in the Approach table. An uncovered SC will not be achieved.
+- Every Step must be grouped under its Approach. A Step unrelated to any Approach indicates a misalignment.
+- Steps must fully implement the Approach they belong to.
 
 ## Phases and Gates
 
@@ -61,7 +61,7 @@ The workflow has three phases. Each phase has a clear purpose, and a gate where 
 | Phase | Purpose | Gate | The developer asks |
 |-------|---------|------|--------------------|
 | **Goal** | Define user value | Gate 1: Goal | Do Benefit and SC capture the right user value? |
-| **Approach** | Design means to achieve SC | Gate 2: Approach | Can Approach and Tasks achieve all SC? |
+| **Approach** | Design means to achieve SC | Gate 2: Approach | Can Approach and Steps achieve all SC? |
 | **Delivery** | Verify achievement | Gate 3: Verification | Are SC met and Benefits realized? |
 
 ### Goal Phase (main/ worktree)
@@ -78,17 +78,17 @@ The developer and agent identify Pain, articulate the desired Benefit, and defin
 
 **Purpose:** Design the means to achieve the Success Criteria.
 
-The agent drafts an Approach (means) and breaks it into Tasks (steps), each mapped to one or more SC.
+The agent drafts an Approach table mapping each SC to its means, then defines Steps grouped by Approach.
 
 **Gate 2 — Approach:**
-- **Relevant:** Does Approach provide a viable means to achieve all SC? Do Tasks trace to SC? Is this the optimal strategy?
+- **Relevant:** Does Approach cover all SC? Do Steps implement the Approach? Is this the optimal strategy?
 - **Irrelevant:** Whether the goal itself is right (already approved at Gate 1)
 
 ### Delivery Phase (work-N/ worktree)
 
 **Purpose:** Implement and verify that the goal is achieved.
 
-The agent implements Tasks, verifies SC are met, and confirms Benefits are realized.
+The agent implements Steps, verifies SC are met, and confirms Benefits are realized.
 
 **Gate 3 — Verification:**
 - **Relevant:** Are SC met? Are Benefits realized? Does the implementation match the approved Approach?

@@ -1,6 +1,6 @@
 # PR Format
 
-The PR defines the means to achieve the Success Criteria. It is reviewed at Gate 2 (Approach): can Approach and Tasks achieve all SC?
+The PR defines the means to achieve the Success Criteria. It is reviewed at Gate 2 (Approach): can Approach and Steps achieve all SC?
 
 **Title:** A concise title describing the purpose of the work
 
@@ -10,18 +10,28 @@ The PR defines the means to achieve the Success Criteria. It is reviewed at Gate
 Closes #{issue number}
 
 ## Approach
-{Means to achieve the Success Criteria}
 
-- Each Task must be derivable from the Approach — a Task unrelated to the Approach indicates a misalignment
+| SC | Approach |
+|----|----------|
+| SC1: {condition from issue} | {Why this method — the means to achieve this SC} |
+| SC2: {condition from issue} | {Why this method} |
 
-## Tasks
-- [ ] {Task} → SC: {which Success Criteria this achieves}
-- [ ] {Task} → SC: {which Success Criteria this achieves}
-- [ ] {Task} → SC: {which Success Criteria this achieves}
+- Every SC from the issue must appear in the table — an uncovered SC will not be achieved
+- Explain why this approach was chosen over alternatives when the choice is non-obvious
 
-- Each Task must trace to one or more SC — a Task with no SC link is unnecessary
-- Each SC must be covered by at least one Task — an uncovered SC will not be achieved
-- Reference SC by quoting its key phrase (e.g., → SC: "README exists with diagram")
+## Steps
+
+### {Approach for SC1}
+- [ ] {Step}
+- [ ] {Step}
+
+### {Approach for SC2}
+- [ ] {Step}
+- [ ] {Step}
+
+- Steps are grouped by the Approach they implement
+- Each step must be a concrete, actionable work item
+- Use checkboxes to track progress
 
 ## Expert Review
 

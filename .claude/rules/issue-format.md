@@ -27,11 +27,12 @@ The issue defines user value. It is reviewed at Gate 1 (Goal): do Benefit and SC
 - Bad: "Development throughput is improved"
 
 ## Success Criteria
-- [ ] {Condition that verifies a Benefit is achieved}
-- [ ] {Condition}
+- [ ] SC1: {Condition that verifies a Benefit is achieved}
+- [ ] SC2: {Condition}
 
+- Number each SC (SC1, SC2, ...) so the PR can reference them
 - Each SC must verify a specific Benefit — an SC with no Benefit link is measuring the wrong thing
 - Must be verifiable conditions, not tasks to complete
-- Good: "A developer can create a worktree and start parallel work by following the documented steps"
-- Bad: "CLAUDE.md has a Worktree section with setup instructions"
+- Good: "SC1: A developer can create a worktree and start parallel work by following the documented steps"
+- Bad: "SC1: CLAUDE.md has a Worktree section with setup instructions"
 ```
