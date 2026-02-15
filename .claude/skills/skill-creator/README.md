@@ -13,8 +13,6 @@ As of February 2025, the full version is not available through Claude Code's ski
 
 We extracted the full version from a zip provided by Claude and placed it here so that skill developers in this repository can use eval and benchmark modes without manual setup each time.
 
-The files were verified by SHA256 checksum comparison against the original zip to ensure integrity.
-
 ## When to replace
 
 When Anthropic publishes the full version of skill-creator on GitHub (likely at [anthropics/skills](https://github.com/anthropics/skills)), replace this directory with the official release. The official version will receive updates and bug fixes that this snapshot will not.
