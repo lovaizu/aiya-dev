@@ -100,10 +100,10 @@ get_worker_count() {
 ensure_main_worktree() {
   if [ ! -d "$REPO_ROOT/main" ]; then
     echo "Creating main worktree..."
-    git -C "$REPO_ROOT" worktree add main main
+    git -C "$REPO_ROOT" worktree add main issue-29
   fi
   # Update main
-  git -C "$REPO_ROOT/main" pull --ff-only origin main 2>/dev/null \
+  git -C "$REPO_ROOT/main" pull --ff-only origin issue-29 2>/dev/null \
     || echo "Warning: could not update main worktree" >&2
 }
 
@@ -120,7 +120,7 @@ ensure_work_worktrees() {
         needs_fetch=false
       fi
       echo "Creating worktree: $name"
-      git -C "$REPO_ROOT" worktree add "$name" -b "$name" origin/main
+      git -C "$REPO_ROOT" worktree add "$name" -b "$name" origin/issue-29
     fi
   done
 }
