@@ -92,7 +92,7 @@ description: Generates professional PDF reports from tabular data files
 Consult `references/writing-guide.md` for detailed patterns. Key principles:
 
 - **Imperative voice**: "Validate the input" not "The input should be validated"
-- **Explain why, not just what**: Instead of "MUST validate input", write "Validate input before processing — invalid data causes silent corruption in downstream steps"
+- **Explain why, not just what**: Instead of barking orders, explain rationale — "Validate input before processing — invalid data causes silent corruption in downstream steps"
 - **Step-ordered structure**: Numbered steps or clear phases. Claude follows step-by-step most faithfully
 - **Concrete over abstract**: "Run `bash scripts/validate.sh --input {file}`" not "validate properly"
 - **Include examples**: At least one Input → Action → Result example
@@ -186,7 +186,7 @@ When instructions need improvement:
 
 1. Find all vague instructions — anything that could mean different things to different people
 2. Rewrite each as a concrete action with specific commands or clear criteria
-3. Replace MUST/ALWAYS/NEVER overuse with rationale-based explanations
+3. Replace mandatory-keyword overuse with rationale-based explanations
 4. Add error handling for steps that could fail
 5. Add examples where behavior is ambiguous
 6. Verify step ordering and data flow between steps
@@ -261,7 +261,7 @@ Read the full SKILL.md body and assess:
 
 Flag every Vague instruction with a concrete rewrite.
 
-**Writing style**: Check for MUST/ALWAYS/NEVER overuse (>1 per 200 words is a warning sign). The Guide says to explain WHY instead.
+**Writing style**: Check for mandatory-keyword overuse (>1 per 200 words is a warning sign). The Guide says to explain WHY instead.
 
 **Completeness**: Is the workflow complete from input to output? Are there gaps where Claude would have to improvise?
 
@@ -336,7 +336,7 @@ These guide all three modes. They come from the Guide itself.
 
 1. **Description is king.** It determines whether Claude ever loads the skill. Prioritize it above everything else.
 
-2. **Explain why, not just what.** Skills that explain rationale produce more consistent behavior than skills that bark orders with MUST/ALWAYS/NEVER.
+2. **Explain why, not just what.** Skills that explain rationale produce more consistent behavior than skills that bark orders with mandatory keywords.
 
 3. **Appropriately pushy.** Claude undertriggers. Descriptions should lean toward inclusivity. Better to trigger on a borderline case than miss a valid one.
 
