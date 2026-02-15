@@ -23,7 +23,7 @@ trap 'rm -rf "$abs_dir"' EXIT
 git clone -q --bare "$repo_url" .bare
 echo "gitdir: ./.bare" > .git
 git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-git fetch origin
+git fetch -q origin
 
 # Extract .env from repo
 git show origin/main:.env.example > .env
