@@ -2,35 +2,95 @@
 
 Claude Code in your area
 
-## Getting Started
+## Step-by-step Usage
 
-### 1. Bootstrap (first time)
+### First-time setup
 
 ```bash
+# Download and run bootstrap
 curl -fsSL https://raw.githubusercontent.com/lovaizu/ciya-dev/main/.ciya/scripts/wc.sh -o wc.sh
 bash wc.sh
-```
 
-This creates `ciya-dev/` with a bare clone, `.env`, and `up.sh`.
+# You now have:
+#   ciya-dev/.bare/    ← bare clone
+#   ciya-dev/.env      ← from .env.example (edit this)
+#   ciya-dev/main/     ← main branch worktree
+#   ciya-dev/up.sh     ← symlink → main/.ciya/scripts/up.sh
 
-### 2. Set up environment
-
-```bash
 cd ciya-dev
-vi .env    # Set GH_TOKEN (required) and other tokens
+vi .env    # Set GH_TOKEN and other tokens
 ```
 
-### 3. Start
+### Starting worktrees and CC
 
 ```bash
-./up.sh 4    # Create main + 4 work worktrees, launch tmux with CC
+./up.sh 4
+# Creates work-1/ through work-4/ worktrees
+# Launches tmux session "ciya" with 5 panes:
+#   main/ | work-1/ | work-2/ | work-3/ | work-4/
+# Each pane starts Claude Code automatically
 ```
 
-### 4. Resume
+### Resuming a previous session
 
 ```bash
-./up.sh      # Resume with previous configuration
-./up.sh 6    # Change to 6 work worktrees
+./up.sh
+# No arguments → reads saved config and starts with the same number of worktrees
+# If last run was "up.sh 4", this is equivalent to "up.sh 4"
+```
+
+### Scaling worktrees up and down
+
+```bash
+./up.sh 6
+# Adds work-5/ and work-6/ to the existing worktrees
+# Restarts tmux with 7 panes (main + 6 workers)
+
+./up.sh 4
+# Removes work-5/ and work-6/ (only if they have no uncommitted changes)
+# Restarts tmux with 5 panes (main + 4 workers)
+```
+
+### Keeping up.sh up to date
+
+```bash
+# In the main/ worktree:
+cd main && git pull && cd ..
+
+# up.sh at repo root is a symlink to main/.ciya/scripts/up.sh
+# After git pull, ./up.sh automatically runs the latest version
+```
+
+### Working on issues
+
+In the **main/** pane:
+```
+/hi                    # Start hearing → brainstorm → create issue on GitHub
+                       # Review the issue on GitHub, leave comments if needed
+/fb                    # Address any issue comments
+/ty                    # Gate 1: Approve the goal
+```
+
+In a **work-N/** pane:
+```
+/hi 42                 # Start working on issue #42
+                       # Creates branch, work records, and draft PR on GitHub
+                       # Review the PR on GitHub, leave comments if needed
+/fb                    # Address any PR comments
+/ty                    # Gate 2: Approve the approach → implementation begins
+                       # ... CC implements, pushes commits ...
+                       # Review on GitHub, leave comments if needed
+/fb                    # Address any review comments
+/ty                    # Gate 3: Verify goal achieved → squash merge
+```
+
+### Interrupting and resuming work
+
+```
+/bb                    # In any work-N/ pane: saves state to .ciya/issues/nnnnn/resume.md
+                       # You can now work on a different issue in this pane
+
+/hi 42                 # Later, in any work-N/: reads resume.md and picks up where you left off
 ```
 
 ## Workflow
