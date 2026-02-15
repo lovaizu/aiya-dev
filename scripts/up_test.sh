@@ -174,19 +174,21 @@ test_invalid_arg() {
 }
 run_test "Invalid argument rejected" test_invalid_arg
 
-# --- Test 7: No config and no argument errors ---
-test_no_config_no_arg() {
+# --- Test 7: No config and no argument defaults to 1 ---
+test_no_config_no_arg_defaults() {
   local testdir="$tmpdir/test7"
   setup_repo "$testdir"
   [ ! -f "$testdir/.up_config" ] &&
-  ! (
+  local result
+  result="$(
     export REPO_ROOT="$testdir"
     export CONFIG_FILE="$testdir/.up_config"
     source "$UP_SH"
     get_worker_count ""
-  ) 2>/dev/null
+  )" &&
+  [ "$result" = "1" ]
 }
-run_test "No config and no argument errors" test_no_config_no_arg
+run_test "No config and no argument defaults to 1" test_no_config_no_arg_defaults
 
 # --- Test 8: Config created after successful run ---
 test_config_after_run() {

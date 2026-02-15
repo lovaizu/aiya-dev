@@ -33,7 +33,7 @@ Usage: up.sh [<n>]
 Start or resume the CC development environment.
 
   up.sh <n>    Create main + n work worktrees, start tmux with CC
-  up.sh        Resume with the previous configuration
+  up.sh        Resume previous configuration (default: 1 worktree)
 
 Examples:
   up.sh 4      Start with 4 work worktrees (work-1 through work-4)
@@ -93,8 +93,7 @@ get_worker_count() {
   elif [ -f "$CONFIG_FILE" ]; then
     cat "$CONFIG_FILE"
   else
-    echo "Error: no previous configuration found. Run: up.sh <n>" >&2
-    exit 1
+    echo "1"
   fi
 }
 
