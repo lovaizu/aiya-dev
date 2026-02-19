@@ -13,23 +13,25 @@ Closes #{issue number}
 
 | SC | Approach |
 |----|----------|
-| SC1: {condition from issue} | {Why this method — the means to achieve this SC} |
-| SC2: {condition from issue} | {Why this method} |
+| SC1: {condition from issue} | {Means to achieve this SC} |
+| SC2: {condition from issue} | {Means to achieve this SC} |
 
 - Every SC from the issue must appear in the table — an uncovered SC will not be achieved
+- Approach column contains the means (what), not the rationale (why)
 - Explain why this approach was chosen over alternatives when the choice is non-obvious
 
 ## Steps
 
-### {Approach for SC1}
+### {Approach}
 - [ ] {Step}
 - [ ] {Step}
 
-### {Approach for SC2}
+### {Approach}
 - [ ] {Step}
 - [ ] {Step}
 
-- Steps are grouped by the Approach they implement
+- One heading per unique Approach from the table
+- If multiple SCs share the same Approach, use a single heading
 - Each step must be a concrete, actionable work item
 - Use checkboxes to track progress
 
