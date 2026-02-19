@@ -8,7 +8,7 @@ set -euo pipefail
 #   ./up.sh <n>    Create/adjust to n work worktrees + start tmux
 #   ./up.sh        Resume with previous configuration
 #
-# Prerequisites: claude, git, tmux, gh
+# Prerequisites: claude, git, tmux, gh, kcov
 
 # Allow tests to override these variables before sourcing
 if [ -z "${REPO_ROOT:-}" ]; then
@@ -45,7 +45,7 @@ USAGE
 
 check_prerequisites() {
   local missing=()
-  for cmd in claude git tmux gh; do
+  for cmd in claude git tmux gh kcov; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
       missing+=("$cmd")
     fi
