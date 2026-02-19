@@ -188,16 +188,19 @@ run_test "Invalid argument rejected" test_invalid_arg
 
 # --- Test 7: No config and no argument defaults to 1 ---
 test_no_config_no_arg_defaults() {
+  # Given: no config file and CIYA_WORK_COUNT unset
   local testdir="$tmpdir/test7"
   setup_repo "$testdir"
-  [ ! -f "$testdir/.up_config" ] &&
   local result
+  [ ! -f "$testdir/.up_config" ] &&
   result="$(
     export REPO_ROOT="$testdir"
     export CONFIG_FILE="$testdir/.up_config"
+    unset CIYA_WORK_COUNT
     source "$UP_SH"
     get_worker_count ""
   )" &&
+  # Then: defaults to 1
   [ "$result" = "1" ]
 }
 run_test "No config and no argument defaults to 1" test_no_config_no_arg_defaults
@@ -210,6 +213,88 @@ test_config_after_run() {
   [ "$(cat "$testdir/.up_config")" = "2" ]
 }
 run_test "Config created after successful run" test_config_after_run
+
+# --- Test 9: CIYA_WORK_COUNT overrides default ---
+test_ciya_work_count_override() {
+  # Given: no config file and CIYA_WORK_COUNT=5
+  local testdir="$tmpdir/test7"
+  local result
+  [ ! -f "$testdir/.up_config" ] || rm "$testdir/.up_config"
+  result="$(
+    export REPO_ROOT="$testdir"
+    export CONFIG_FILE="$testdir/.up_config"
+    export CIYA_WORK_COUNT=5
+    source "$UP_SH"
+    # When: get_worker_count with no argument
+    get_worker_count ""
+  )" &&
+  # Then: uses CIYA_WORK_COUNT value
+  [ "$result" = "5" ]
+}
+run_test "CIYA_WORK_COUNT overrides default" test_ciya_work_count_override
+
+# ── check_prerequisites ───────────────────────────────────────
+echo "check_prerequisites:"
+
+# --- Test 10: All prerequisites present ---
+test_prerequisites_all_present() {
+  # Given: a PATH with all required commands
+  local fake_bin="$tmpdir/fake_bin"
+  mkdir -p "$fake_bin"
+  for cmd in claude git tmux gh kcov; do
+    printf '#!/bin/sh\ntrue\n' > "$fake_bin/$cmd"
+    chmod +x "$fake_bin/$cmd"
+  done
+  # When+Then: check_prerequisites succeeds
+  (
+    export REPO_ROOT="$tmpdir/test1"
+    source "$UP_SH"
+    PATH="$fake_bin"
+    check_prerequisites
+  )
+}
+run_test "All prerequisites present" test_prerequisites_all_present
+
+# --- Test 11: Missing command detected ---
+test_prerequisites_missing_command() {
+  # Given: a PATH where kcov is missing
+  local fake_bin="$tmpdir/fake_bin_no_kcov"
+  mkdir -p "$fake_bin"
+  for cmd in claude git tmux gh; do
+    printf '#!/bin/sh\ntrue\n' > "$fake_bin/$cmd"
+    chmod +x "$fake_bin/$cmd"
+  done
+  # When+Then: check_prerequisites exits non-zero
+  ! (
+    export REPO_ROOT="$tmpdir/test1"
+    source "$UP_SH"
+    PATH="$fake_bin"
+    check_prerequisites
+  ) 2>/dev/null
+}
+run_test "Missing command detected" test_prerequisites_missing_command
+
+# --- Test 12: Error message lists missing command names ---
+test_prerequisites_error_message() {
+  # Given: a PATH where gh and kcov are missing
+  local fake_bin="$tmpdir/fake_bin_partial"
+  mkdir -p "$fake_bin"
+  for cmd in claude git tmux; do
+    printf '#!/bin/sh\ntrue\n' > "$fake_bin/$cmd"
+    chmod +x "$fake_bin/$cmd"
+  done
+  # When: running check_prerequisites
+  local output
+  output="$(
+    export REPO_ROOT="$tmpdir/test1"
+    source "$UP_SH"
+    PATH="$fake_bin"
+    check_prerequisites 2>&1
+  )" || true
+  # Then: error message includes both missing command names
+  [[ "$output" == *"gh"* ]] && [[ "$output" == *"kcov"* ]]
+}
+run_test "Error message lists missing command names" test_prerequisites_error_message
 
 # --- Results ---
 echo ""
