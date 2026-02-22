@@ -38,6 +38,7 @@ jobs:
             [ -f "$f" ] || continue
             dir="$(cd "$(dirname "$f")" && pwd)"
             kcov --include-path="$dir" --exclude-pattern=_test.sh \
+                 --bash-parse-files-in-dirs="$dir" \
                  --bash-dont-parse-binary-dir \
                  --exclude-line="$KCOV_EXCLUDE" \
                  ./coverage "./$f"
