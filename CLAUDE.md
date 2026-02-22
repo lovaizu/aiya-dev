@@ -7,7 +7,3 @@
 
 - All environment variables defined by this project must use the `CIYA_` prefix (e.g., `CIYA_WORK_COUNT`, `CIYA_DEFAULT_BRANCH`)
 - Third-party variables (e.g., `GH_TOKEN`, `ANTHROPIC_API_KEY`) keep their original names
-
-## Script Testing
-
-See `.claude/rules/testing.md` for common test rules (Given-When-Then, coverage, meta-rules) and `.claude/rules/testing-shell.md` for shell-specific conventions.

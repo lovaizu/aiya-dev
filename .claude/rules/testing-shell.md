@@ -50,20 +50,8 @@ echo "Results: $passed passed, $failed failed"
 [[ $failed -gt 0 ]] && exit 1
 ```
 
-### Required elements
-
-- **Shebang**: `#!/usr/bin/env bash`
-- **Set flags**: `set -euo pipefail` (omit `-e` only when tests must capture non-zero exit codes)
-- **SCRIPT_DIR**: `SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"`
-- **Counters**: `passed=0` and `failed=0`
-- **Assertion helpers**: At minimum `assert_eq`; add custom helpers as needed (e.g., `assert_contains`, `assert_decision`)
-- **Sections**: Group related tests under `# ── Name ──` comment headers with an `echo` for the section name
-- **Summary**: Print `"Results: $passed passed, $failed failed"` and exit non-zero if any test failed
-
-### Temp directory
-
-- Tests that create files or directories must use `mktemp -d` and clean up with `trap 'rm -rf "$tmp"' EXIT`
-- Tests that only exercise pure functions (no filesystem side effects) may skip the temp directory
+- Omit `set -e` only when tests must capture non-zero exit codes
+- Tests with no filesystem side effects may skip the temp directory
 
 ## Coverage with kcov
 
@@ -98,10 +86,13 @@ done
 
 ### Coverage exclusions
 
-Lines that cannot be covered (e.g., main guards for sourced scripts) may be excluded:
+Coverage exclusions are prohibited by default (see `testing.md`). When exclusion is approved by the developer, use `# LCOV_EXCL_LINE` for single lines or `# LCOV_EXCL_START` / `# LCOV_EXCL_STOP` for blocks:
 
 ```bash
-[[ "${BASH_SOURCE[0]}" == "$0" ]] && main "$@"  # LCOV_EXCL_LINE
+# Requires interactive tmux session; see manual tests in up_test.sh
+launch_tmux() {  # LCOV_EXCL_START
+  ...
+}  # LCOV_EXCL_STOP
 ```
 
 ### Known limitations
