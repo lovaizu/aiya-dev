@@ -20,3 +20,5 @@
 
 | # | Decision | Reason |
 |---|----------|--------|
+| 1 | Accepted | Agent-introduced inconsistency — fixed to `origin/main` in workflow.md |
+| 2 | Accepted | Violated existing step-design rule — split into separate steps in ty.md |

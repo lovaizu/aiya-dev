@@ -56,7 +56,7 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
     - Verify approval: `gh pr view <number> --json reviewDecision` must return `APPROVED`
     - If not `APPROVED`, ask the developer to approve the PR on GitHub first
     - Squash-merge: `gh pr merge <number> --squash`
-    - Return to base branch and update: `git switch <work-N> && git fetch origin && git merge --ff-only origin/$CIYA_DEFAULT_BRANCH` — the worktree stays on a named branch at the latest main so the next task starts from a clean, current state
+    - Return to base branch and update: `git switch <work-N> && git fetch origin && git merge --ff-only origin/main` — the worktree stays on a named branch at the latest main so the next task starts from a clean, current state
     - Delete task branch: `git push origin --delete <branch-name> && git branch -D <branch-name>`
 
 11. **Done**
