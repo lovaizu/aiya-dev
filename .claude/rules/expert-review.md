@@ -43,19 +43,14 @@ One `{domain}-expert-review.md` file per expert in `.ciya/issues/nnnnn/`, with t
 3. For each expert:
    a. Read each changed file in the domain
    b. Evaluate against the domain's best practices — search official documentation when uncertain
-   c. Record findings with severity and proposed improvements — each finding must be specific enough that the developer can judge whether to accept it
+   c. Record findings with severity and proposed improvements — each finding must be specific enough to act on without ambiguity
    d. Write to `{domain}-expert-review.md` in the work records directory
-4. Commit and push the review files
-
-### Developer Handoff
-
-5. Tell the developer: "Expert review ready. Fill in the Decision table, then continue."
-6. The developer reviews findings and records decisions:
-   - **Accepted** — Agent implements the improvement
-   - **Rejected** — Record the reason; no action needed
-7. After the developer records decisions, read each file
-8. Implement all accepted improvements
-9. Commit and push
+4. Decide on each finding and fill in the Decision table:
+   - **Accepted** — the finding is valid and the improvement should be implemented
+   - **Rejected** — record the reason (e.g., false positive, acceptable trade-off, out of scope)
+   - Accept findings that fix real issues; reject findings that are subjective preferences or low-value nitpicks
+5. Implement all accepted improvements
+6. Commit and push
 
 ## Verify
 
