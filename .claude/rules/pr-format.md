@@ -1,6 +1,6 @@
 # PR Format
 
-The PR defines the means to achieve the Success Criteria. It is reviewed at Gate 2 (Approach): can Approach and Steps achieve all SC?
+The PR defines the means to achieve the Acceptance Scenarios. It is reviewed at Gate 2 (Approach): can Approach and Steps achieve all AS?
 
 **Title:** A concise title describing the purpose of the work
 
@@ -11,12 +11,12 @@ Closes #{issue number}
 
 ## Approach
 
-| SC | Approach |
+| AS | Approach |
 |----|----------|
-| SC1: {condition from issue} | {Means to achieve this SC} |
-| SC2: {condition from issue} | {Means to achieve this SC} |
+| AS1: Given ... When ... Then ... | {Means to achieve this AS} |
+| AS2: Given ... When ... Then ... | {Means to achieve this AS} |
 
-- Every SC from the issue must appear in the table — an uncovered SC will not be achieved
+- Every AS from the issue must appear in the table — an uncovered AS will not be achieved
 - Approach column contains the means (what), not the rationale (why)
 - Explain why this approach was chosen over alternatives when the choice is non-obvious
 
@@ -31,7 +31,7 @@ Closes #{issue number}
 - [ ] {Step}
 
 - One heading per unique Approach from the table
-- If multiple SCs share the same Approach, use a single heading
+- If multiple ASs share the same Approach, use a single heading
 - Each step must be a concrete, actionable work item
 - Use checkboxes to track progress
 
@@ -41,17 +41,17 @@ Closes #{issue number}
 |----------|-------------|----------|
 | {What the expert found} | {Proposed fix or change} | {Accepted/Rejected + reason} |
 
-## Success Criteria Check
+## Scenario Evaluation
 
-Execute the criterion as written first. If direct execution is truly not possible, explain why before falling back to alternatives.
+Pseudo-execute each scenario as the target user. For each Given-When-Then, walk through the precondition, action, and expected outcome.
 
-| Criterion | Status | Method | Judgment |
-|-----------|--------|--------|----------|
-| {SC from the issue} | {OK/NG} | {Executed/Inspected} | {See format below} |
+| Scenario | Status | Method | Judgment |
+|----------|--------|--------|----------|
+| {AS from the issue} | {OK/NG} | {Executed/Inspected} | {See format below} |
 
 Judgment format by method:
-- Executed: "Ran {what}. Got {result}. {Why this means OK or NG}"
-- Inspected: "Cannot execute because {reason}. Inspected {what instead}. {Why this means OK or NG}"
+- Executed: "As [who], did {When action} in {Given context}. Got {result}. {Then outcome} is satisfied/not satisfied"
+- Inspected: "Cannot execute because {reason}. Inspected {what instead}. {Then outcome} is satisfied/not satisfied"
 ```
 
 # PR Review Process

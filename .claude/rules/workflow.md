@@ -12,25 +12,25 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
 
 2. **Issue creation**
    - Draft the issue title in user story format (see `issue-format.md`)
-   - Draft the issue body with Situation, Pain, Benefit, and Success Criteria
+   - Draft the issue body with Situation, Pain, Benefit, and Acceptance Scenarios
    - Create the issue on GitHub with `gh issue create`
 
 3. **Gate 1 — Goal**
    - Developer reviews the issue on GitHub
    - `/fb` to address feedback comments on the issue
    - `/ty` to approve
-   - **The developer asks:** Do Benefit and SC capture the right user value?
-   - **Relevant:** Situation, Pain, Benefit, SC — are the facts accurate, the problem real, and the measure of success right?
+   - **The developer asks:** Do Benefit and Acceptance Scenarios capture the right user value?
+   - **Relevant:** Situation, Pain, Benefit, AS — are the facts accurate, the problem real, and the measure of success right?
    - **Irrelevant:** Implementation details, current architecture, technical feasibility
 
 ## Phase 2: Approach (work-N/ worktree)
 
-**Purpose:** Design the means to achieve the Success Criteria.
+**Purpose:** Design the means to achieve the Acceptance Scenarios.
 
 4. **PR description**
    - Draft the PR title (concise, describes purpose)
    - Draft the PR body with Approach table and Steps (see `pr-format.md`)
-   - Ensure every SC appears in the Approach table
+   - Ensure every AS appears in the Approach table
    - Ensure Steps are grouped by Approach and implement it
    - Create the PR on GitHub with `gh pr create`
 
@@ -38,8 +38,8 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
    - Developer reviews the PR on GitHub
    - `/fb` to address feedback comments on the PR
    - `/ty` to approve
-   - **The developer asks:** Can Approach and Steps achieve all SC?
-   - **Relevant:** Does Approach cover all SC? Do Steps implement the Approach? Is this the optimal strategy?
+   - **The developer asks:** Can Approach and Steps achieve all AS?
+   - **Relevant:** Does Approach cover all AS? Do Steps implement the Approach? Is this the optimal strategy?
    - **Irrelevant:** Whether the goal itself is right (already approved at Gate 1)
 
 ## Phase 3: Delivery (work-N/ worktree)
@@ -54,8 +54,8 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
    - Verify the issue title's [benefit] summarizes the primary Benefit from the body
    - Verify each Pain arises from the Situation
    - Verify each Benefit traces from a Pain
-   - Verify each Success Criteria maps to a Benefit
-   - Verify every SC appears in the PR Approach table
+   - Verify each Acceptance Scenario maps to a Benefit
+   - Verify every AS appears in the PR Approach table
    - Verify Steps are grouped by Approach and implement it
    - If any section was updated during earlier steps, re-check all sections
    - Fix any inconsistencies found
@@ -67,20 +67,20 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
    - Fix any problems found
    - Append the Expert Review table to the PR body (see `pr-format.md`)
 
-9. **Success Criteria check**
-   - Read the issue's Success Criteria
-   - For each criterion: execute it as written (prefer execution over inspection)
+9. **Scenario Evaluation**
+   - Read the issue's Acceptance Scenarios
+   - For each scenario: pseudo-execute it as the target user (prefer execution over inspection)
    - If execution is truly not possible, explain why before falling back to inspection
-   - Update the issue body to check off completed Success Criteria checkboxes
-   - Append the Success Criteria Check table to the PR body (see `pr-format.md`)
-   - If any criterion is NG, address it and re-check
+   - Update the issue body to check off completed Acceptance Scenario checkboxes
+   - Append the Scenario Evaluation table to the PR body (see `pr-format.md`)
+   - If any scenario is NG, address it and re-check
 
 10. **Gate 3 — Verification**
     - Developer reviews the implementation on GitHub
     - `/fb` to address feedback comments on the PR
     - `/ty` to approve
-    - **The developer asks:** Are SC met and Benefits realized?
-    - **Relevant:** Are SC met? Are Benefits realized? Does the implementation match the approved Approach?
+    - **The developer asks:** Are AS met and Benefits realized?
+    - **Relevant:** Are AS met? Are Benefits realized? Does the implementation match the approved Approach?
     - **Irrelevant:** Whether the approach was optimal (already approved at Gate 2)
 
 11. **Merge**

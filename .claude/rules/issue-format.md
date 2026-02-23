@@ -1,6 +1,6 @@
 # Issue Format
 
-The issue defines user value. It is reviewed at Gate 1 (Goal): do Benefit and SC capture the right user value?
+The issue defines user value. It is reviewed at Gate 1 (Goal): do Benefit and Acceptance Scenarios capture the right user value?
 
 **Title:** Use user story format: "As a [role], I want [goal] so that [benefit]"
 
@@ -32,13 +32,28 @@ The issue defines user value. It is reviewed at Gate 1 (Goal): do Benefit and SC
 - Good: "B1: Developers can run multiple tasks in parallel ← P1"
 - Bad: "B1: Development throughput is improved"
 
-## Success Criteria
-- [ ] SC1: {Condition that verifies a Benefit is achieved} ← B1
-- [ ] SC2: {Condition} ← B2
+## Acceptance Scenarios
 
-- Number each SC (SC1, SC2, ...) and link to its Benefit with ← Bn
-- Each SC must verify a specific Benefit — an SC with no Benefit link is measuring the wrong thing
-- Must be verifiable conditions, not tasks to complete
-- Good: "SC1: A developer can create a worktree and start parallel work by following the documented steps ← B1"
-- Bad: "SC1: CLAUDE.md has a Worktree section with setup instructions"
+### {[who] from Benefit}
+- [ ] AS1: Given {context or precondition}
+  When {action the [who] takes}
+  Then {observable outcome that verifies the Benefit} ← B1
+
+- [ ] AS2: Given {context}
+  When {action}
+  Then {outcome} ← B1
+
+### {Another [who] from Benefit}
+- [ ] AS3: Given {context}
+  When {action}
+  Then {outcome} ← B2
+
+- Number each scenario (AS1, AS2, ...) and link to its Benefit with ← Bn
+- Group scenarios under ### headings by the [who] from the Benefit they verify
+- Each scenario must verify a specific Benefit — a scenario with no Benefit link is measuring the wrong thing
+- Use Given-When-Then format:
+  - Given: the situation or precondition the [who] is in
+  - When: the action the [who] takes
+  - Then: the observable outcome that proves the Benefit is achieved
+- Multiple scenarios may verify the same Benefit from different angles
 ```
