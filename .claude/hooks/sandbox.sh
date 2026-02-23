@@ -16,13 +16,15 @@ set -euo pipefail
 # ============================================================
 
 INPUT=$(cat)
-TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // ""')
-CWD=$(echo "$INPUT" | jq -r '.cwd // ""')
-FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // ""')
-NOTEBOOK_PATH=$(echo "$INPUT" | jq -r '.tool_input.notebook_path // ""')
-INPUT_PATH=$(echo "$INPUT" | jq -r '.tool_input.path // ""')
-URL_FIELD=$(echo "$INPUT" | jq -r '.tool_input.url // ""')
-COMMAND_STR=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
+_jq_expr='(.tool_name // ""), "\u0000", (.cwd // ""), "\u0000", (.tool_input.file_path // ""), "\u0000", (.tool_input.notebook_path // ""), "\u0000", (.tool_input.path // ""), "\u0000", (.tool_input.url // ""), "\u0000", (.tool_input.command // ""), "\u0000"'
+mapfile -t -d '' _fields < <(echo "$INPUT" | jq -j "$_jq_expr")
+TOOL_NAME="${_fields[0]}"
+CWD="${_fields[1]}"
+FILE_PATH="${_fields[2]}"
+NOTEBOOK_PATH="${_fields[3]}"
+INPUT_PATH="${_fields[4]}"
+URL_FIELD="${_fields[5]}"
+COMMAND_STR="${_fields[6]}"
 
 REPO_ROOT=$(cd "$CWD" && git rev-parse --show-toplevel 2>/dev/null) || {
   echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Cannot determine repository root"}}' >&1
