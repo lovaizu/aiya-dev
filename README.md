@@ -149,7 +149,7 @@ Other environments (native Linux, macOS, Git Bash on Windows) are not currently 
 ### First-time setup
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/lovaizu/ciya-dev/main/scripts/wc.sh | bash
+curl -fsSL https://raw.githubusercontent.com/lovaizu/ciya-dev/main/setup/wc.sh | bash
 
 cd ciya-dev
 vi .env    # Set GH_TOKEN and other tokens
