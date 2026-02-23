@@ -213,13 +213,16 @@ In a **work-N/** pane:
 
 ## Commands
 
-| Command | Where | What it does |
-|---------|-------|-------------|
-| `/hi` | main/ | Start hearing → create issue |
-| `/hi <issue#>` | work-N/ | Start or resume work on an issue |
-| `/bb` | work-N/ | Interrupt work, save state for resumption |
-| `/fb` | any | Address feedback comments on Issues or PRs |
-| `/ty` | any | Approve the current gate |
+| Command | Full Name | Where | What it does |
+|---------|-----------|-------|-------------|
+| `wc.sh` | Welcome | — | First-time setup: clone, install tools, create worktrees |
+| `up.sh` | Up | — | Start or resume a tmux session with parallel workers |
+| `dn.sh` | Down | — | Stop the tmux session started by up.sh |
+| `/hi` | Hi | main/ | Start hearing → create issue |
+| `/hi <number>` | Hi | work-N/ | Start or resume work on an issue |
+| `/bb` | Bye-bye | work-N/ | Interrupt work, save state for resumption |
+| `/fb` | Feedback | any | Address feedback comments on Issues or PRs |
+| `/ty` | Thank you | any | Approve the current gate |
 
 ## Directory Structure
 
