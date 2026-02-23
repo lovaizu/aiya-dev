@@ -62,6 +62,12 @@ echo "up.sh placeholder"
 UPEOF
   chmod +x setup/up.sh
 
+  cat > setup/dn.sh <<'DNEOF'
+#!/usr/bin/env bash
+echo "dn.sh placeholder"
+DNEOF
+  chmod +x setup/dn.sh
+
   git add -A
   git commit -q -m "initial"
 )
@@ -103,6 +109,7 @@ assert_eq ".bare/ contains bare clone" "true" "$([ -f "$workdir/ciya-dev/.bare/H
 assert_eq "main/ worktree exists" "true" "$([ -d "$workdir/ciya-dev/main" ] && echo true || echo false)"
 assert_eq ".env extracted from .env.example" "true" "$(grep -q GH_TOKEN "$workdir/ciya-dev/.env" && echo true || echo false)"
 assert_eq "up.sh is symlink" "main/setup/up.sh" "$(readlink "$workdir/ciya-dev/up.sh")"
+assert_eq "dn.sh is symlink" "main/setup/dn.sh" "$(readlink "$workdir/ciya-dev/dn.sh")"
 
 # ── Directory already exists ──────────────────────────────────
 echo "directory already exists:"
