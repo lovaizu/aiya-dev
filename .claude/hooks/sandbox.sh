@@ -16,15 +16,15 @@ set -euo pipefail
 # ============================================================
 
 INPUT=$(cat)
-eval "$(echo "$INPUT" | jq -r '
-  @sh "TOOL_NAME=\(.tool_name // "")",
-  @sh "CWD=\(.cwd // "")",
-  @sh "FILE_PATH=\(.tool_input.file_path // "")",
-  @sh "NOTEBOOK_PATH=\(.tool_input.notebook_path // "")",
-  @sh "INPUT_PATH=\(.tool_input.path // "")",
-  @sh "URL_FIELD=\(.tool_input.url // "")",
-  @sh "COMMAND_STR=\(.tool_input.command // "")"
-')"
+_jq_expr='(.tool_name // ""), "\u0000", (.cwd // ""), "\u0000", (.tool_input.file_path // ""), "\u0000", (.tool_input.notebook_path // ""), "\u0000", (.tool_input.path // ""), "\u0000", (.tool_input.url // ""), "\u0000", (.tool_input.command // ""), "\u0000"'
+mapfile -t -d '' _fields < <(echo "$INPUT" | jq -j "$_jq_expr")
+TOOL_NAME="${_fields[0]}"
+CWD="${_fields[1]}"
+FILE_PATH="${_fields[2]}"
+NOTEBOOK_PATH="${_fields[3]}"
+INPUT_PATH="${_fields[4]}"
+URL_FIELD="${_fields[5]}"
+COMMAND_STR="${_fields[6]}"
 
 REPO_ROOT=$(cd "$CWD" && git rev-parse --show-toplevel 2>/dev/null) || {
   echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Cannot determine repository root"}}' >&1
@@ -36,24 +36,12 @@ REPO_ROOT=$(cd "$CWD" && git rev-parse --show-toplevel 2>/dev/null) || {
 # ============================================================
 
 deny() {
-  jq -n --arg reason "$1" '{
-    hookSpecificOutput: {
-      hookEventName: "PreToolUse",
-      permissionDecision: "deny",
-      permissionDecisionReason: $reason
-    }
-  }'
+  jq -nc --arg reason "$1" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}'
   exit 0
 }
 
 ask() {
-  jq -n --arg reason "$1" '{
-    hookSpecificOutput: {
-      hookEventName: "PreToolUse",
-      permissionDecision: "ask",
-      permissionDecisionReason: $reason
-    }
-  }'
+  jq -nc --arg reason "$1" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "ask", permissionDecisionReason: $reason}}'
   exit 0
 }
 
@@ -167,6 +155,8 @@ is_domain_allowed() {
 
   domain=$(echo "$domain" | tr '[:upper:]' '[:lower:]')
 
+  local domains_content
+  domains_content=$(cat "$CIYA_ALLOWED_DOMAINS_FILE")
   while IFS= read -r entry || [[ -n "$entry" ]]; do
     [[ -z "$entry" || "$entry" =~ ^[[:space:]]*# ]] && continue
     entry=$(echo "$entry" | tr '[:upper:]' '[:lower:]' | xargs)
@@ -175,7 +165,7 @@ is_domain_allowed() {
     if [[ "$domain" == "$entry" ]] || [[ "$domain" == *".$entry" ]]; then
       return 0
     fi
-  done < "$CIYA_ALLOWED_DOMAINS_FILE"
+  done <<< "$domains_content"
 
   return 1
 }
@@ -373,10 +363,15 @@ check_bash_network() {
   fi
 
   # Extract domains from URLs (http:// or https://)
-  local url_domains
-  url_domains=$(echo "$cmd" | grep -oP 'https?://[^/\s"'\'']+' | while read -r url; do
-    extract_domain_from_url "$url"
-  done 2>/dev/null || true)
+  local url_matches
+  url_matches=$(echo "$cmd" | grep -oP 'https?://[^/\s"'\'']+' 2>/dev/null || true)
+  local url_domains=""
+  if [[ -n "$url_matches" ]]; then
+    while IFS= read -r url; do
+      [[ -z "$url" ]] && continue
+      url_domains+="$(extract_domain_from_url "$url")"$'\n'
+    done <<< "$url_matches"
+  fi
 
   # Extract host from user@host patterns (ssh, scp, rsync)
   local ssh_hosts
@@ -388,7 +383,6 @@ check_bash_network() {
 
   if [[ -z "$all_domains" ]]; then
     ask "Network command detected but target domain could not be determined. Please verify."
-    return 0
   fi
 
   while IFS= read -r domain; do
@@ -403,8 +397,7 @@ check_bash_network() {
 # Main dispatch — field-based extraction
 #
 # Spec:
-#   All fields are extracted in a single jq call at script start
-#   using eval + @sh for safe shell-variable assignment.
+#   All fields are extracted via individual jq calls at script start.
 #
 #   Pre-extracted variables:
 #     TOOL_NAME, CWD, FILE_PATH, NOTEBOOK_PATH, INPUT_PATH,
