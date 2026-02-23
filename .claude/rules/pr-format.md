@@ -1,6 +1,6 @@
 # PR Format
 
-The PR defines the means to achieve the Success Criteria. It is reviewed at Gate 2 (Approach): can Approach and Steps achieve all SC?
+The PR defines the means to achieve the Acceptance Scenarios. It is reviewed at Gate 2 (Approach): can Approach and Steps achieve all AS?
 
 **Title:** Derived from the branch name: Title Case of the goal part followed by `#<issue number>`
 - Example: branch `42_parallel-claude-code-tasks` → PR title `Parallel Claude Code Tasks #42`
@@ -12,13 +12,13 @@ Closes #{issue number}
 
 ## Approach
 
-| SC | Approach |
+| AS | Approach |
 |----|----------|
-| SC1: {condition from issue} | {Means to achieve this SC} |
-| SC2: {condition from issue} | {Means to achieve this SC} |
+| AS1: Given ... When ... Then ... | {Means to achieve this AS} |
+| AS2: Given ... When ... Then ... | {Means to achieve this AS} |
 
-- Every SC from the issue must appear in the table — an uncovered SC will not be achieved
-- Approach column contains the means (what), not the rationale (why)
+- Every AS from the issue appears in the table — an uncovered AS will not be achieved
+- Approach column contains the means (what), not the rationale (why) — rationale goes in design.md
 - Explain why this approach was chosen over alternatives when the choice is non-obvious
 
 ## Steps
@@ -32,27 +32,21 @@ Closes #{issue number}
 - [ ] {Step}
 
 - One heading per unique Approach from the table
-- If multiple SCs share the same Approach, use a single heading
-- Each step must be a concrete, actionable work item
+- If multiple ASs share the same Approach, use a single heading
+- Each step is a concrete, actionable work item so progress can be tracked
 - Use checkboxes to track progress
 
 ## Expert Review
 
-| Feedback | Improvement | Decision |
-|----------|-------------|----------|
-| {What the expert found} | {Proposed fix or change} | {Accepted/Rejected + reason} |
+- [{Domain} Expert Review]({url to work record})
 
-## Success Criteria Check
+One link per domain expert — see `expert-review.md` for procedure and format
 
-Execute the criterion as written first. If direct execution is truly not possible, explain why before falling back to alternatives.
+## Scenario Evaluation
 
-| Criterion | Status | Method | Judgment |
-|-----------|--------|--------|----------|
-| {SC from the issue} | {OK/NG} | {Executed/Inspected} | {See format below} |
+- [Scenario Evaluation]({url to work record})
 
-Judgment format by method:
-- Executed: "Ran {what}. Got {result}. {Why this means OK or NG}"
-- Inspected: "Cannot execute because {reason}. Inspected {what instead}. {Why this means OK or NG}"
+See `scenario-evaluation.md` for procedure and format
 ```
 
 # PR Review Process
@@ -63,5 +57,5 @@ Judgment format by method:
 - When making a fix: commit, push, then reply to the review comment
 - Include a link to the commit in the reply when a fix is made
 - Include `Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>` in review replies
-- Do NOT resolve review comments — the author of the comment will resolve them
-- Do NOT create new comments on the PR — only reply to existing review comments
+- Leave review comments unresolved — the author resolves them to confirm their concern is addressed
+- Reply only to existing review comments — new top-level comments fragment the conversation

@@ -26,7 +26,7 @@ Start the workflow from step 1 (Hearing):
 1. Ask the developer to describe their goal — what they want to achieve and why
 2. Ask clarifying questions until the goal and scope are clear
 3. Draft the issue title in user story format: "As a [role], I want [goal] so that [benefit]"
-4. Draft the issue body with Situation, Pain, Benefit, and Success Criteria
+4. Draft the issue body with Situation, Pain, Benefit, and Acceptance Scenarios
 5. Create the issue on GitHub: `gh issue create`
 6. Tell the developer the issue URL and say: "Review on GitHub. Use comments for feedback, then `/ty` to approve."
 7. Wait for `/ty` (Gate 1: Goal) or `/fb` (address feedback comments)

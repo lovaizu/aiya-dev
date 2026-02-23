@@ -5,6 +5,7 @@
 # Anthropic - Claude API, platform, error reporting
 anthropic.com
 claude.ai
+claude.com
 sentry.io
 
 # GitHub - git operations, gh CLI, raw content
