@@ -178,6 +178,13 @@ vi .env    # Set GH_TOKEN and other tokens
 ./up.sh 4    # Scale back to 4 (removes idle workers)
 ```
 
+### Stopping sessions
+
+```bash
+./dn.sh
+# Kills the "ciya" tmux session started by up.sh
+```
+
 ### Working on issues
 
 In the **main/** pane:
@@ -220,9 +227,10 @@ In a **work-N/** pane:
 ciya-dev/
 ├── .bare/              Bare clone
 ├── .env                Environment variables (CIYA_* prefix)
-├── up.sh               Symlink → main/scripts/up.sh
+├── up.sh               Symlink → main/setup/up.sh
+├── dn.sh               Symlink → main/setup/dn.sh
 ├── main/               Issue management worktree
-│   ├── scripts/        wc.sh, up.sh
+│   ├── setup/          wc.sh, up.sh, dn.sh
 │   ├── .ciya/
 │   │   └── issues/     Work records per issue
 │   ├── .claude/        Commands, rules, hooks
