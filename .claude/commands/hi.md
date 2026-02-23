@@ -76,11 +76,13 @@ Start or resume work on the specified issue:
 
 ### If starting fresh
 
-1. Create a branch from origin/main: `git fetch origin && git switch -c <branch-name> origin/main`
+1. Update the base branch to latest main: `git fetch origin && git switch <work-N> && git merge --ff-only origin/main` — ensures the developer always starts from the latest main
+   - Derive `<work-N>` from the worktree directory: `basename "$(git rev-parse --show-toplevel)"`
+2. Create a task branch from the updated base: `git switch -c <branch-name>`
    - Branch name: derive from the issue goal, using hyphen-separated words describing the goal (not the implementation)
-2. Create the work records directory: `.ciya/issues/<5-digit-number>/`
-3. Create `design.md` with: `## Problem Summary`, `## Approach`, `## Key Decisions`, `## Open Questions`
-4. Proceed to PR description drafting (workflow step 4):
+3. Create the work records directory: `.ciya/issues/<5-digit-number>/`
+4. Create `design.md` with: `## Problem Summary`, `## Approach`, `## Key Decisions`, `## Open Questions`
+5. Proceed to PR description drafting (workflow step 4):
    - Draft PR title and body with Approach and Tasks (see `pr-format.md`)
    - Create the PR on GitHub: `gh pr create`
    - Tell the developer: "PR created. Review on GitHub, then `/ty` to approve the approach."
