@@ -598,6 +598,19 @@ assert_decision "gh issue edit with destructive text in body" "allow" \
   "$(mk_json Bash '{"command": "gh issue edit 1 --body \"reboot the server\"", "description": "test"}')"
 
 # ============================================================
+echo "=== Non-git CWD: deny when not in a repo ==="
+# ============================================================
+
+# Given: a temp directory that is not a git repo
+tmp_non_git="$(mktemp -d)"
+trap 'rm -rf "$tmp_non_git"' EXIT
+
+# When: hook runs with CWD pointing to non-git directory
+# Then: deny with "Cannot determine repository root"
+assert_decision "Non-git CWD denies access" "deny" \
+  "$(jq -n --arg cwd "$tmp_non_git" '{tool_name: "Read", tool_input: {file_path: "/tmp/test.txt"}, cwd: $cwd}')"
+
+# ============================================================
 echo ""
 echo "=== Results: $passed passed, $failed failed ==="
 [[ $failed -eq 0 ]] && echo "All tests passed!" || exit 1
