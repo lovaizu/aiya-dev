@@ -96,6 +96,7 @@ main() {
   # Create main worktree first so the symlink target exists
   git worktree add main "$CIYA_DEFAULT_BRANCH"
   ln -s main/setup/up.sh up.sh
+  ln -s main/setup/dn.sh dn.sh
 
   # Install remaining tools
   ensure_tmux

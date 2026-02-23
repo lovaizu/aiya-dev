@@ -2,10 +2,12 @@
 
 ## Branch Strategy
 
-- Create a branch from the latest `main`: `git fetch origin && git switch -c <branch-name> origin/main`
-- Branch name describes the user's goal so team members understand the purpose at a glance. Use hyphen-separated words.
-- Good: `parallel-claude-code-tasks`, `faster-test-feedback`
-- Bad: `setup-bare-repo-worktree`, `refactor-module-to-class`
+- Create a branch from the latest `main`: `git fetch origin && git switch -c <issue number>_<hyphen-separated-goal> origin/main`
+- Branch name format: `<issue number>_<hyphen-separated-goal>` (all lowercase) so team members understand the purpose at a glance
+  - Issue number: the GitHub issue number (no zero-padding)
+  - Goal: the user's goal from the issue, not the implementation approach, using hyphen-separated words
+- Good: `42_parallel-claude-code-tasks`, `15_faster-test-feedback`
+- Bad: `42_setup-bare-repo-worktree`, `refactor-module-to-class`
 
 ## Commit Conventions
 
