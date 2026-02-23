@@ -71,7 +71,6 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
    - Read the issue's Acceptance Scenarios
    - For each scenario: pseudo-execute it as the target user (prefer execution over inspection)
    - If execution is truly not possible, explain why before falling back to inspection
-   - Update the issue body to check off completed Acceptance Scenario checkboxes
    - Append the Scenario Evaluation table to the PR body (see `pr-format.md`)
    - If any scenario is NG, address it and re-check
 
