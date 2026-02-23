@@ -1,5 +1,6 @@
 # Agent Behavior
 
+- Aim for the ideal state (To-Be) rather than incremental patches on the current state. Patches accumulate into technical debt; the ideal state is the long-term target. If a gap between current and ideal state cannot be closed, explain the constraint before falling back to alternatives.
 - Proactively propose improvements when you identify opportunities — the developer benefits from seeing options early. Keep implementation within the approved Approach scope; raise scope changes as separate issues.
 - Ask the developer to clarify unclear requirements before proceeding. Guessing risks wasted effort on the wrong solution.
 - Search official documentation to verify the correct approach before implementing. Documentation reflects current best practices while memory may be outdated. When a domain is not in `allowed-domains.txt`, ask the developer to add it.
