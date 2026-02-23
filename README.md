@@ -16,20 +16,20 @@ flowchart TD
         direction LR
         S[Situation] --> P[Pain]
         P --> B[Benefit]
-        B --> SC[Success Criteria]
+        B --> AS[Acceptance Scenarios]
     end
     p1 --> G1{{"Gate 1: Right value?"}}
     G1 --> p2
-    subgraph p2["Phase 2: Approach — Design means to achieve SC"]
+    subgraph p2["Phase 2: Approach — Design means to achieve AS"]
         direction LR
         A[Approach] --> T[Steps]
     end
-    T -.->|achieves| SC
+    T -.->|achieves| AS
     p2 --> G2{{"Gate 2: Right means?"}}
     G2 --> p3
     subgraph p3["Phase 3: Delivery — Verify achievement"]
         direction LR
-        EX[Execute Steps] --> V[Verify SC met]
+        EX[Execute Steps] --> V[Verify AS met]
     end
     p3 --> G3{{"Gate 3: Value delivered?"}}
 ```
@@ -38,19 +38,19 @@ flowchart TD
 - **Situation** — Observable facts and circumstances
 - **Pain** — Who suffers and how (the problem to solve)
 - **Benefit** — Who gains what, once resolved (the value to deliver)
-- **Success Criteria** — Verifiable conditions that prove Benefit is achieved
+- **Acceptance Scenarios** — Given-When-Then scenarios that verify Benefit is achieved, grouped by target user
 
 **PR (how):**
-- **Approach** — SC-to-means mapping table: what means will achieve each SC
+- **Approach** — AS-to-means mapping table: what means will achieve each AS
 - **Steps** — Concrete work steps to implement each Approach, grouped by Approach
 
 Issue-side rules:
 - Every Pain must arise from the Situation. A Pain with no Situation basis is an ungrounded assumption.
 - Every Benefit must trace from a Pain. A Benefit with no Pain link is solving a problem that doesn't exist.
-- Every SC must connect to a Benefit. An SC with no Benefit link is measuring the wrong thing.
+- Every AS must connect to a Benefit. An AS with no Benefit link is measuring the wrong thing.
 
 PR-side rules:
-- Every SC must appear in the Approach table. An uncovered SC will not be achieved.
+- Every AS must appear in the Approach table. An uncovered AS will not be achieved.
 - Every Step must be grouped under its Approach. A Step unrelated to any Approach indicates a misalignment.
 - Steps must fully implement the Approach they belong to.
 
@@ -60,38 +60,38 @@ The workflow has three phases. Each phase has a clear purpose, and a gate where 
 
 | Phase | Purpose | Gate | The developer asks |
 |-------|---------|------|--------------------|
-| **Goal** | Define user value | Gate 1: Goal | Do Benefit and SC capture the right user value? |
-| **Approach** | Design means to achieve SC | Gate 2: Approach | Can Approach and Steps achieve all SC? |
-| **Delivery** | Verify achievement | Gate 3: Verification | Are SC met and Benefits realized? |
+| **Goal** | Define user value | Gate 1: Goal | Do Benefit and Acceptance Scenarios capture the right user value? |
+| **Approach** | Design means to achieve AS | Gate 2: Approach | Can Approach and Steps achieve all AS? |
+| **Delivery** | Verify achievement | Gate 3: Verification | Are AS met and Benefits realized? |
 
 ### Goal Phase (main/ worktree)
 
 **Purpose:** Define what user value we want to deliver.
 
-The developer and agent identify Pain, articulate the desired Benefit, and define Success Criteria that verify the Benefit is achieved.
+The developer and agent identify Pain, articulate the desired Benefit, and define Acceptance Scenarios that verify the Benefit is achieved.
 
 **Gate 1 — Goal:**
-- **Relevant:** Situation, Pain, Benefit, SC — are the facts accurate, the problem real, and the measure of success right?
+- **Relevant:** Situation, Pain, Benefit, AS — are the facts accurate, the problem real, and the measure of success right?
 - **Irrelevant:** Implementation details, current architecture, technical feasibility
 
 ### Approach Phase (work-N/ worktree)
 
-**Purpose:** Design the means to achieve the Success Criteria.
+**Purpose:** Design the means to achieve the Acceptance Scenarios.
 
-The agent drafts an Approach table mapping each SC to its means, then defines Steps grouped by Approach.
+The agent drafts an Approach table mapping each AS to its means, then defines Steps grouped by Approach.
 
 **Gate 2 — Approach:**
-- **Relevant:** Does Approach cover all SC? Do Steps implement the Approach? Is this the optimal strategy?
+- **Relevant:** Does Approach cover all AS? Do Steps implement the Approach? Is this the optimal strategy?
 - **Irrelevant:** Whether the goal itself is right (already approved at Gate 1)
 
 ### Delivery Phase (work-N/ worktree)
 
 **Purpose:** Implement and verify that the goal is achieved.
 
-The agent implements Steps, verifies SC are met, and confirms Benefits are realized.
+The agent implements Steps, verifies AS are met, and confirms Benefits are realized.
 
 **Gate 3 — Verification:**
-- **Relevant:** Are SC met? Are Benefits realized? Does the implementation match the approved Approach?
+- **Relevant:** Are AS met? Are Benefits realized? Does the implementation match the approved Approach?
 - **Irrelevant:** Whether the approach was optimal (already approved at Gate 2)
 
 At each gate: review on GitHub, leave comments if needed (`/fb` to address them), then `/ty` to approve.
