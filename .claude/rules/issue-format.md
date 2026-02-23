@@ -4,8 +4,8 @@ The issue defines user value. It is reviewed at Gate 1 (Goal): do Benefit and Ac
 
 **Title:** Use user story format: "As a [role], I want [goal] so that [benefit]"
 
-- [goal] must be the user's desired outcome, not a technical means or implementation detail
-- [benefit] in the title must summarize the primary Benefit from the body's Benefit section
+- [goal] is the user's desired outcome so the reader immediately understands the purpose
+- [benefit] in the title summarizes the primary Benefit from the body's Benefit section
 - Good: "I want to run multiple tasks in parallel"
 - Bad: "I want a bare repo + worktree structure"
 
@@ -31,7 +31,7 @@ The issue defines user value. It is reviewed at Gate 1 (Goal): do Benefit and Ac
 | P1 | B1 | {Who benefits and how, once resolved} |
 | P2 | B2 | {Benefit} |
 
-- Use "[who] can [what]" form
+- Use "[who] can [what]" form so the benefit is concrete and verifiable
 - Each Benefit must trace from a Pain — a Benefit with no Pain link is solving a problem that doesn't exist
 - Good: "Developers can run multiple tasks in parallel"
 - Bad: "Development throughput is improved"
@@ -51,7 +51,7 @@ The issue defines user value. It is reviewed at Gate 1 (Goal): do Benefit and Ac
 |---------|----|-------|------|------|
 | B2 | AS3 | {context} | {action} | {outcome} |
 
-- Group scenarios under ### headings by the [who] from the Benefit they verify
+- Group scenarios under ### headings by [who] so coverage per target user is visible at a glance
 - Each scenario must verify a specific Benefit — a scenario with no Benefit link is measuring the wrong thing
 - Given: the situation or precondition the [who] is in
 - When: the action the [who] takes

@@ -1,10 +1,10 @@
 # Workflow
 
-Follow this workflow for every task. Three phases, each with a purpose and a gate.
+Follow this workflow for every task. Three phases, each with a purpose and a gate where the developer confirms the work meets expectations before proceeding.
 
 ## Phase 1: Goal (main/ worktree)
 
-**Purpose:** Define user value — what Benefit to deliver and how to verify it.
+**Purpose:** Define user value — what Benefit to deliver and how to verify it. Getting the goal right prevents wasted implementation effort.
 
 1. **Requirements Definition** (see `requirements-definition.md`)
 
@@ -18,7 +18,7 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
 
 ## Phase 2: Approach (work-N/ worktree)
 
-**Purpose:** Design the means to achieve the Acceptance Scenarios.
+**Purpose:** Design the means to achieve the Acceptance Scenarios. Reviewing the approach before implementation catches strategic mistakes early.
 
 3. **Approach Design** (see `approach-design.md`)
 
@@ -32,7 +32,7 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
 
 ## Phase 3: Delivery (work-N/ worktree)
 
-**Purpose:** Implement and verify that the goal is achieved.
+**Purpose:** Implement and verify that the goal is achieved. Multiple verification steps catch different classes of issues before the developer reviews.
 
 5. **Implementation**
    - Write code and make commits (split by purpose, one logical change per commit)
@@ -56,7 +56,7 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
     - Verify approval: `gh pr view <number> --json reviewDecision` must return `APPROVED`
     - If not `APPROVED`, ask the developer to approve the PR on GitHub first
     - Squash-merge: `gh pr merge <number> --squash`
-    - Detach HEAD and delete branches: `git checkout --detach && git push origin --delete <branch-name> && git branch -D <branch-name>`
+    - Clean up: `git checkout --detach && git push origin --delete <branch-name> && git branch -D <branch-name>` — detaching HEAD prevents accidental commits on a merged branch
 
 11. **Done**
     - The work-N/ worktree is ready for the next `/hi <number>`

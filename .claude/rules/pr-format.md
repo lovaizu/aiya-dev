@@ -16,8 +16,8 @@ Closes #{issue number}
 | AS1: Given ... When ... Then ... | {Means to achieve this AS} |
 | AS2: Given ... When ... Then ... | {Means to achieve this AS} |
 
-- Every AS from the issue must appear in the table — an uncovered AS will not be achieved
-- Approach column contains the means (what), not the rationale (why)
+- Every AS from the issue appears in the table — an uncovered AS will not be achieved
+- Approach column contains the means (what), not the rationale (why) — rationale goes in design.md
 - Explain why this approach was chosen over alternatives when the choice is non-obvious
 
 ## Steps
@@ -32,7 +32,7 @@ Closes #{issue number}
 
 - One heading per unique Approach from the table
 - If multiple ASs share the same Approach, use a single heading
-- Each step must be a concrete, actionable work item
+- Each step is a concrete, actionable work item so progress can be tracked
 - Use checkboxes to track progress
 
 ## Expert Review
@@ -56,5 +56,5 @@ See `scenario-evaluation.md` for procedure and format
 - When making a fix: commit, push, then reply to the review comment
 - Include a link to the commit in the reply when a fix is made
 - Include `Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>` in review replies
-- Do NOT resolve review comments — the author of the comment will resolve them
-- Do NOT create new comments on the PR — only reply to existing review comments
+- Leave review comments unresolved — the author resolves them to confirm their concern is addressed
+- Reply only to existing review comments — new top-level comments fragment the conversation

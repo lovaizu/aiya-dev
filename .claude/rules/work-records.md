@@ -1,5 +1,7 @@
 # Work Records
 
+Work records preserve design decisions, progress state, and investigation results so that work can be resumed across sessions and worktrees without losing context.
+
 Work records are stored in `.ciya/issues/nnnnn/` where `nnnnn` is the zero-padded 5-digit issue number (e.g., `.ciya/issues/00029/`).
 
 ## Required Files

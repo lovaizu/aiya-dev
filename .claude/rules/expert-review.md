@@ -4,7 +4,7 @@ Procedure for evaluating implementation quality from domain expert perspectives.
 
 ## Purpose
 
-Identify correctness issues and best practice violations before delivery.
+Identify correctness issues and best practice violations before delivery. Domain experts catch issues that generalists miss — a shell scripting expert spots portability problems, a prompt engineer spots instruction ambiguity.
 
 ## Deliverable
 
@@ -35,15 +35,15 @@ One `{domain}-expert-review.md` file per expert in `.ciya/issues/nnnnn/`, with t
 ## Generate
 
 1. List changed files: `git diff origin/main --name-only`
-2. Categorize files by domain:
+2. Categorize files by domain — each domain has distinct best practices that require specialized evaluation:
    - Shell scripts → Shell scripting expert
    - Rules/prompts (`.claude/` markdown) → Prompt engineering expert
    - CI/CD (`.github/`) → CI/CD expert
    - Documentation → Technical writing expert
 3. For each expert:
    a. Read each changed file in the domain
-   b. Evaluate against the domain's best practices
-   c. Record findings with severity and proposed improvements
+   b. Evaluate against the domain's best practices — search official documentation when uncertain
+   c. Record findings with severity and proposed improvements — each finding must be specific enough that the developer can judge whether to accept it
    d. Write to `{domain}-expert-review.md` in the work records directory
 4. Commit and push the review files
 
@@ -60,7 +60,7 @@ One `{domain}-expert-review.md` file per expert in `.ciya/issues/nnnnn/`, with t
 ## Verify
 
 1. Every changed file is covered by at least one expert's scope
-2. Each finding has a specific, actionable improvement
+2. Each finding has a specific, actionable improvement — vague advice like "consider improving" is not actionable
 3. All accepted improvements are implemented
 4. Implemented changes do not introduce new issues
 
