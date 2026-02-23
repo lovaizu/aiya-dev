@@ -26,10 +26,10 @@ The issue defines user value. It is reviewed at Gate 1 (Goal): do Benefit and Ac
 
 ## Benefit
 
-| # | Benefit | Pain |
-|---|---------|------|
-| B1 | {Who benefits and how, once resolved} | P1 |
-| B2 | {Benefit} | P2 |
+| Pain | # | Benefit |
+|------|---|---------|
+| P1 | B1 | {Who benefits and how, once resolved} |
+| P2 | B2 | {Benefit} |
 
 - Use "[who] can [what]" form
 - Each Benefit must trace from a Pain — a Benefit with no Pain link is solving a problem that doesn't exist
