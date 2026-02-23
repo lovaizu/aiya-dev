@@ -2,7 +2,8 @@
 
 The PR defines the means to achieve the Success Criteria. It is reviewed at Gate 2 (Approach): can Approach and Steps achieve all SC?
 
-**Title:** A concise title describing the purpose of the work
+**Title:** Derived from the branch name: Title Case of the goal part followed by `#<issue number>`
+- Example: branch `42_parallel-claude-code-tasks` → PR title `Parallel Claude Code Tasks #42`
 
 **Body:**
 
