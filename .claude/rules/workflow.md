@@ -6,16 +6,9 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
 
 **Purpose:** Define user value — what Benefit to deliver and how to verify it.
 
-1. **Hearing**
-   - Gather requirements from the developer
-   - Ask clarifying questions until the goal and scope are clear
+1. **Requirements Definition** (see `requirements-definition.md`)
 
-2. **Issue creation**
-   - Draft the issue title in user story format (see `issue-format.md`)
-   - Draft the issue body with Situation, Pain, Benefit, and Acceptance Scenarios
-   - Create the issue on GitHub with `gh issue create`
-
-3. **Gate 1 — Goal**
+2. **Gate 1 — Goal**
    - Developer reviews the issue on GitHub
    - `/fb` to address feedback comments on the issue
    - `/ty` to approve
@@ -27,14 +20,9 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
 
 **Purpose:** Design the means to achieve the Acceptance Scenarios.
 
-4. **PR description**
-   - Draft the PR title (concise, describes purpose)
-   - Draft the PR body with Approach table and Steps (see `pr-format.md`)
-   - Ensure every AS appears in the Approach table
-   - Ensure Steps are grouped by Approach and implement it
-   - Create the PR on GitHub with `gh pr create`
+3. **Approach Design** (see `approach-design.md`)
 
-5. **Gate 2 — Approach**
+4. **Gate 2 — Approach**
    - Developer reviews the PR on GitHub
    - `/fb` to address feedback comments on the PR
    - `/ty` to approve
@@ -46,35 +34,17 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
 
 **Purpose:** Implement and verify that the goal is achieved.
 
-6. **Implementation**
+5. **Implementation**
    - Write code and make commits (split by purpose, one logical change per commit)
    - Push commits to the remote branch
 
-7. **Consistency check**
-   - Verify the issue title's [benefit] summarizes the primary Benefit from the body
-   - Verify each Pain arises from the Situation
-   - Verify each Benefit traces from a Pain
-   - Verify each Acceptance Scenario maps to a Benefit
-   - Verify every AS appears in the PR Approach table
-   - Verify Steps are grouped by Approach and implement it
-   - If any section was updated during earlier steps, re-check all sections
-   - Fix any inconsistencies found
+6. **Consistency Check** (see `consistency-check.md`)
 
-8. **Expert review**
-   - Identify the technical domain of the deliverable
-   - Simulate a review from a domain expert perspective
-   - Evaluate correctness, best practices, and potential issues
-   - Fix any problems found
-   - Append the Expert Review table to the PR body (see `pr-format.md`)
+7. **Expert Review** (see `expert-review.md`)
 
-9. **Scenario Evaluation**
-   - Read the issue's Acceptance Scenarios
-   - For each scenario: pseudo-execute it as the target user (prefer execution over inspection)
-   - If execution is truly not possible, explain why before falling back to inspection
-   - Append the Scenario Evaluation table to the PR body (see `pr-format.md`)
-   - If any scenario is NG, address it and re-check
+8. **Scenario Evaluation** (see `scenario-evaluation.md`)
 
-10. **Gate 3 — Verification**
+9. **Gate 3 — Verification**
     - Developer reviews the implementation on GitHub
     - `/fb` to address feedback comments on the PR
     - `/ty` to approve
@@ -82,13 +52,13 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
     - **Relevant:** Are AS met? Are Benefits realized? Does the implementation match the approved Approach?
     - **Irrelevant:** Whether the approach was optimal (already approved at Gate 2)
 
-11. **Merge**
+10. **Merge**
     - Verify approval: `gh pr view <number> --json reviewDecision` must return `APPROVED`
     - If not `APPROVED`, ask the developer to approve the PR on GitHub first
     - Squash-merge: `gh pr merge <number> --squash`
     - Detach HEAD and delete branches: `git checkout --detach && git push origin --delete <branch-name> && git branch -D <branch-name>`
 
-12. **Done**
+11. **Done**
     - The work-N/ worktree is ready for the next `/hi <number>`
 
 ## Gate Rejection

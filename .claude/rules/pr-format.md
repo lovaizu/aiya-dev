@@ -37,21 +37,15 @@ Closes #{issue number}
 
 ## Expert Review
 
-| Feedback | Improvement | Decision |
-|----------|-------------|----------|
-| {What the expert found} | {Proposed fix or change} | {Accepted/Rejected + reason} |
+- [{Domain} Expert Review]({url to work record})
+
+One link per domain expert — see `expert-review.md` for procedure and format
 
 ## Scenario Evaluation
 
-Pseudo-execute each scenario as the target user. For each Given-When-Then, walk through the precondition, action, and expected outcome.
+- [Scenario Evaluation]({url to work record})
 
-| Scenario | Status | Method | Judgment |
-|----------|--------|--------|----------|
-| {AS from the issue} | {OK/NG} | {Executed/Inspected} | {See format below} |
-
-Judgment format by method:
-- Executed: "As [who], did {When action} in {Given context}. Got {result}. {Then outcome} is satisfied/not satisfied"
-- Inspected: "Cannot execute because {reason}. Inspected {what instead}. {Then outcome} is satisfied/not satisfied"
+See `scenario-evaluation.md` for procedure and format
 ```
 
 # PR Review Process
