@@ -3,5 +3,5 @@
 | AS | Status | Method | Judgment |
 |----|--------|--------|----------|
 | AS1 | OK | Executed | As a developer, ran `git ls-files \| xargs grep -rli ciya` after the rename is complete. Got `Matches: 0`. Zero matches are returned is satisfied. |
-| AS2 | Pending | - | Requires repository rename to `aiya-dev` before verification. `setup/up.sh` uses `AIYA_` env vars; all 23 unit tests pass. Full verification after repo rename. |
-| AS3 | Pending | - | Requires repository rename to `aiya-dev` before verification. All `.aiya/issues/` path references updated in `/ok`, `/bb`, `/ty` commands. Full verification after repo rename. |
+| AS2 | OK | Executed | As a developer, confirmed repo renamed to `aiya-dev` via `gh repo view`. Ran `up_test.sh` (23/23 pass) and `wc_test.sh` (24/24 pass) with `AIYA_` env vars. `setup/up.sh` uses `AIYA_DEFAULT_BRANCH` and `AIYA_WORK_COUNT`. Worktrees are successfully set up is satisfied. |
+| AS3 | OK | Simulated | As a developer, verified all command files (`/ok`, `/bb`, `/ty`) and rule files reference `.aiya/issues/` paths with zero `.ciya` references remaining. `.aiya/issues/00041/` directory exists with 5 work record files. Commands work correctly with `.aiya/issues/` paths is satisfied. |
