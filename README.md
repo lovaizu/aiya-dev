@@ -23,15 +23,29 @@ vi .env    # Set GH_TOKEN and other tokens
 
 ```mermaid
 flowchart TD
-    A["You: /hi"] -->|create issue| G1{Gate 1: Goal}
-    G1 -->|"You: /ty"| B["You: /ok N"]
-    B -->|create PR| G2{Gate 2: Approach}
-    G2 -->|"You: /ty"| C["CC: implement + verify"]
-    C --> G3{Gate 3: Delivery}
-    G3 -->|"You: /ty"| D[Merge]
+    H["/hi — Hearing"] --> I["Issue → GitHub"]
+    I --> R1["Developer reviews"]
+    R1 --> FB1["/fb — Address comments"]
+    FB1 --> R1
+    R1 --> G1["/ty — Gate 1: Goal"]
+    G1 --> OK["/ok N — Start or resume"]
+    OK --> WR{Work records?}
+    WR -- new --> BR["Create branch + PR"]
+    WR -- resume --> RS["Restore state"]
+    BR --> R2["Developer reviews"]
+    RS --> R2
+    R2 --> FB2["/fb — Address comments"]
+    FB2 --> R2
+    R2 --> G2["/ty — Gate 2: Approach"]
+    G2 --> IMPL["Implementation"]
+    IMPL --> CHK["Checks & Expert Review"]
+    CHK --> R3["Developer reviews"]
+    R3 --> FB3["/fb — Address comments"]
+    FB3 --> R3
+    R3 --> G3["/ty — Gate 3: Verification"]
+    G3 --> MRG["Merge"]
+    BB["/bb — Interrupt & save"] -.-> WR
 ```
-
-`/fb` addresses review comments at any gate. `/bb` saves progress for later.
 
 ## Usage
 
