@@ -21,6 +21,8 @@ vi .env    # Set GH_TOKEN and other tokens
 
 ## Usage
 
+**In-session commands** (inside Claude Code):
+
 ```
 /hi                    # Create an issue on GitHub
 /fb                    # Address any feedback comments
@@ -30,6 +32,8 @@ vi .env    # Set GH_TOKEN and other tokens
 ```
 
 **Three gates** guide every task: approve the goal → approve the approach → verify the result. That's all you do — the agent handles the rest.
+
+**Shell commands** (terminal):
 
 ```bash
 ./up.sh 6              # Scale up to 6 parallel workers
