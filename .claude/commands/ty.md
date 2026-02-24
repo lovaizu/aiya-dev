@@ -24,30 +24,28 @@ Show this to the developer:
 
 Use this decision tree:
 
-1. Detect the worktree type: `basename "$(git rev-parse --show-toplevel)"`
-2. If `main` → **Gate 1**
-3. Otherwise (any non-main worktree):
-   a. Find PR: `gh pr list --head $(git branch --show-current) --json number,title,body,url,reviewDecision`
-   b. If no PR exists → tell the developer: "No PR found. Run `/hi <number>` first."
-   c. Check implementation status: `git log origin/main..HEAD --oneline`
-      - If no commits or only an empty initial commit → **Gate 2**
-      - If implementation commits exist → **Gate 3**
+1. Find a PR for the current branch: `gh pr list --head $(git branch --show-current) --json number,title,body,url,reviewDecision`
+2. If no PR exists → **Gate 1**
+3. If a PR exists:
+   a. Check which files have changed: `git diff --name-only origin/main..HEAD`
+   b. If no changed files, or all changed files are under `.ciya/` → **Gate 2**
+   c. If any changed files are outside `.ciya/` → **Gate 3**
 
 If the gate cannot be determined, tell the developer which gate could not be identified and ask them to clarify.
 
-## Gate 1: Goal (in main/ worktree)
+## Gate 1: Goal (no PR exists)
 
 The developer approved the issue.
 
-1. Tell the developer: "Issue approved. Run `/hi <number>` in a work-N/ worktree to start implementation."
+1. Tell the developer: "Issue approved. Run `/ok <number>` to start implementation."
 
 <example>
 Developer: /ty
 Agent: Gate 1 — Goal approved.
-       Run `/hi 42` in a work-N/ worktree to start implementation.
+       Run `/ok 42` to start implementation.
 </example>
 
-## Gate 2: Approach (in work-N/, PR exists, no implementation yet)
+## Gate 2: Approach (PR exists, no implementation yet)
 
 The developer approved the PR approach. Proceed to implementation:
 
@@ -56,7 +54,7 @@ The developer approved the PR approach. Proceed to implementation:
    - Make commits (split by purpose, one logical change per commit)
    - Push commits to the remote branch
 2. After implementation, continue through steps 7-9:
-   - Consistency check, expert review, success criteria check
+   - Consistency check, expert review, scenario evaluation
 3. Tell the developer: "Implementation complete. Review on GitHub, then `/ty` to approve."
 
 <example>
@@ -66,21 +64,21 @@ Agent: Gate 2 — Approach approved. Starting implementation.
        Implementation complete. Review on GitHub, then `/ty` to approve.
 </example>
 
-## Gate 3: Goal Verification (in work-N/, PR with implementation)
+## Gate 3: Goal Verification (PR with implementation)
 
 The developer confirmed the goal is achieved. Proceed to merge:
 
 1. Verify approval: `gh pr view <number> --json reviewDecision` must return `APPROVED`
 2. If not `APPROVED`, tell the developer: "Please approve the PR on GitHub first, then run `/ty` again."
 3. Squash merge: `gh pr merge <number> --squash`
-4. Return to base branch and update: `git switch <work-N> && git fetch origin && git merge --ff-only origin/main`
-5. Delete task branch: `git push origin --delete <branch-name> && git branch -D <branch-name>`
-6. Clean up work records: delete `resume.md` from the work records directory (`.ciya/issues/nnnnn/`) if it exists, since the issue is now complete and the saved state is no longer needed
-7. Tell the developer: "Merged! This worktree is ready for the next `/hi <number>`."
+4. Determine the base branch name from the worktree directory: `basename "$(git rev-parse --show-toplevel)"`
+5. Return to base branch and update: `git switch <base-branch> && git fetch origin && git merge --ff-only origin/main`
+6. Delete task branch: `git push origin --delete <branch-name> && git branch -D <branch-name>`
+7. Tell the developer: "Merged! Ready for the next `/ok <number>`."
 
 <example>
 Developer: /ty
 Agent: Gate 3 — Goal verification approved.
        PR #43 is approved. Merging...
-       Merged! This worktree is ready for the next `/hi <number>`.
+       Merged! Ready for the next `/ok <number>`.
 </example>

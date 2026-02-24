@@ -64,7 +64,7 @@ The workflow has three phases. Each phase has a clear purpose, and a gate where 
 | **Approach** | Design means to achieve AS | Gate 2: Approach | Can Approach and Steps achieve all AS? |
 | **Delivery** | Verify achievement | Gate 3: Verification | Are AS met and Benefits realized? |
 
-### Goal Phase (main/ worktree)
+### Goal Phase
 
 **Purpose:** Define what user value we want to deliver.
 
@@ -74,7 +74,7 @@ The developer and agent identify Pain, articulate the desired Benefit, and defin
 - **Relevant:** Situation, Pain, Benefit, AS — are the facts accurate, the problem real, and the measure of success right?
 - **Irrelevant:** Implementation details, current architecture, technical feasibility
 
-### Approach Phase (work-N/ worktree)
+### Approach Phase
 
 **Purpose:** Design the means to achieve the Acceptance Scenarios.
 
@@ -84,7 +84,7 @@ The agent drafts an Approach table mapping each AS to its means, then defines St
 - **Relevant:** Does Approach cover all AS? Do Steps implement the Approach? Is this the optimal strategy?
 - **Irrelevant:** Whether the goal itself is right (already approved at Gate 1)
 
-### Delivery Phase (work-N/ worktree)
+### Delivery Phase
 
 **Purpose:** Implement and verify that the goal is achieved.
 
@@ -100,40 +100,36 @@ At each gate: review on GitHub, leave comments if needed (`/fb` to address them)
 
 ```mermaid
 flowchart TD
-    subgraph "main/ worktree"
-        H["/hi — Hearing"] --> I["Issue → GitHub"]
-        I --> R1["Developer reviews"]
-        R1 --> FB1["/fb — Address comments"]
-        FB1 --> R1
-        R1 --> G1["/ty — Gate 1: Goal"]
-    end
+    H["/hi — Hearing"] --> I["Issue → GitHub"]
+    I --> R1["Developer reviews"]
+    R1 --> FB1["/fb — Address comments"]
+    FB1 --> R1
+    R1 --> G1["/ty — Gate 1: Goal"]
 
-    subgraph "work-N/ worktree"
-        HI["/hi N — Start or resume"] --> WR{Work records?}
-        WR -- new --> BR["Create branch + PR"]
-        WR -- resume --> RS["Restore state"]
-        BR --> R2["Developer reviews"]
-        RS --> R2
-        R2 --> FB2["/fb — Address comments"]
-        FB2 --> R2
-        R2 --> G2["/ty — Gate 2: Approach"]
-        G2 --> IMPL["Implementation"]
-        IMPL --> CHK["Checks & Expert Review"]
-        CHK --> R3["Developer reviews"]
-        R3 --> FB3["/fb — Address comments"]
-        FB3 --> R3
-        R3 --> G3["/ty — Gate 3: Verification"]
-        G3 --> MRG["Merge"]
-    end
+    G1 --> OK["/ok N — Start or resume"]
+    OK --> WR{Work records?}
+    WR -- new --> BR["Create branch + PR"]
+    WR -- resume --> RS["Restore state"]
+    BR --> R2["Developer reviews"]
+    RS --> R2
+    R2 --> FB2["/fb — Address comments"]
+    FB2 --> R2
+    R2 --> G2["/ty — Gate 2: Approach"]
+    G2 --> IMPL["Implementation"]
+    IMPL --> CHK["Checks & Expert Review"]
+    CHK --> R3["Developer reviews"]
+    R3 --> FB3["/fb — Address comments"]
+    FB3 --> R3
+    R3 --> G3["/ty — Gate 3: Verification"]
+    G3 --> MRG["Merge"]
 
-    G1 -.->|"/hi N in work-N/"| HI
     BB["/bb — Interrupt & save"] -.-> WR
 ```
 
 **How it works:**
-- You create issues in `main/` and assign them to `work-N/` panes — the agent handles the rest autonomously
+- `/hi` creates issues, `/ok` starts implementation — use either command in any pane
 - Your only job is to review at three gates: approve the goal, the approach, and the final result
-- You interact through four commands (`/hi`, `/ty`, `/fb`, `/bb`) and review comments on GitHub — nothing else
+- You interact through five commands (`/hi`, `/ok`, `/ty`, `/fb`, `/bb`) and review comments on GitHub — nothing else
 - At any point, `/bb` saves progress for later resumption
 
 ## Prerequisites
@@ -159,7 +155,7 @@ vi .env    # Set GH_TOKEN and other tokens
 
 ```bash
 ./up.sh 4
-# Opens 4 parallel workers (plus 1 for issue management)
+# Opens 5 panes (4 workers + 1 additional)
 # Launches tmux session "ciya" with 5 panes
 # Each pane runs Claude Code automatically
 ```
@@ -187,16 +183,11 @@ vi .env    # Set GH_TOKEN and other tokens
 
 ### Working on issues
 
-In the **main/** pane:
 ```
-/hi                    # Start hearing → brainstorm → create issue on GitHub
+/hi                    # Start hearing → create issue on GitHub
 /fb                    # Address any issue comments
 /ty                    # Gate 1: Approve the goal
-```
-
-In a **work-N/** pane:
-```
-/hi 42                 # Start working on issue #42
+/ok 42                 # Start working on issue #42
 /fb                    # Address any PR comments
 /ty                    # Gate 2: Approve the approach → implementation begins
                        # ... CC implements, pushes commits ...
@@ -208,21 +199,21 @@ In a **work-N/** pane:
 
 ```
 /bb                    # Saves state to .ciya/issues/nnnnn/resume.md
-/hi 42                 # Later, in any work-N/: resumes where you left off
+/ok 42                 # Later, in any pane: resumes where you left off
 ```
 
 ## Commands
 
-| Command | Full Name | Where | What it does |
-|---------|-----------|-------|-------------|
-| `wc.sh` | Welcome | — | First-time setup: clone, install tools, create worktrees |
-| `up.sh` | Up | — | Start or resume a tmux session with parallel workers |
-| `dn.sh` | Down | — | Stop the tmux session started by up.sh |
-| `/hi` | Hi | main/ | Start hearing → create issue |
-| `/hi <number>` | Hi | work-N/ | Start or resume work on an issue |
-| `/bb` | Bye-bye | work-N/ | Interrupt work, save state for resumption |
-| `/fb` | Feedback | any | Address feedback comments on Issues or PRs |
-| `/ty` | Thank you | any | Approve the current gate |
+| Command | Full Name | What it does |
+|---------|-----------|-------------|
+| `wc.sh` | Welcome | First-time setup: clone, install tools, create worktrees |
+| `up.sh` | Up | Start or resume a tmux session with parallel workers |
+| `dn.sh` | Down | Stop the tmux session started by up.sh |
+| `/hi` | Hi | Start hearing → create issue |
+| `/ok <number>` | OK | Start or resume work on an issue |
+| `/bb` | Bye-bye | Interrupt work, save state for resumption |
+| `/fb` | Feedback | Address feedback comments on Issues or PRs |
+| `/ty` | Thank you | Approve the current gate |
 
 ## Directory Structure
 
@@ -232,13 +223,13 @@ ciya-dev/
 ├── .env                Environment variables (CIYA_* prefix)
 ├── up.sh               Symlink → main/setup/up.sh
 ├── dn.sh               Symlink → main/setup/dn.sh
-├── main/               Issue management worktree
+├── main/               Worktree (default)
 │   ├── setup/          wc.sh, up.sh, dn.sh
 │   ├── .ciya/
 │   │   └── issues/     Work records per issue
 │   ├── .claude/        Commands, rules, hooks
 │   └── ...
-├── work-1/             Implementation worktree
+├── work-1/             Worktree
 ├── work-2/
 ├── work-3/
 └── work-4/

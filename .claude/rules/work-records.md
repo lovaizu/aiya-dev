@@ -16,6 +16,6 @@ Work records are stored in `.ciya/issues/nnnnn/` where `nnnnn` is the zero-padde
 ## Rules
 
 - Each work branch writes to its own issue's directory
-- `/hi <number>` reads work records via git to resume work
+- `/ok <number>` reads work records via git to resume work
 - `/bb` commits and pushes work records before interrupting
 - Work records are part of the repository and version-controlled
