@@ -27,9 +27,9 @@ Use this decision tree:
 1. Find a PR for the current branch: `gh pr list --head $(git branch --show-current) --json number,title,body,url,reviewDecision`
 2. If no PR exists → **Gate 1**
 3. If a PR exists:
-   a. Check implementation status: `git log origin/main..HEAD --oneline`
-   b. If no commits or only work-record commits (design.md, resume.md) → **Gate 2**
-   c. If implementation commits exist → **Gate 3**
+   a. Check which files have changed: `git diff --name-only origin/main..HEAD`
+   b. If no changed files, or all changed files are under `.ciya/` → **Gate 2**
+   c. If any changed files are outside `.ciya/` → **Gate 3**
 
 If the gate cannot be determined, tell the developer which gate could not be identified and ask them to clarify.
 
@@ -74,8 +74,7 @@ The developer confirmed the goal is achieved. Proceed to merge:
 4. Determine the base branch name from the worktree directory: `basename "$(git rev-parse --show-toplevel)"`
 5. Return to base branch and update: `git switch <base-branch> && git fetch origin && git merge --ff-only origin/main`
 6. Delete task branch: `git push origin --delete <branch-name> && git branch -D <branch-name>`
-7. Clean up work records: delete `resume.md` from the work records directory (`.ciya/issues/nnnnn/`) if it exists, since the issue is now complete and the saved state is no longer needed
-8. Tell the developer: "Merged! Ready for the next `/ok <number>`."
+7. Tell the developer: "Merged! Ready for the next `/ok <number>`."
 
 <example>
 Developer: /ty

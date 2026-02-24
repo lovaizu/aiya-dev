@@ -44,6 +44,7 @@ Start or resume work on the specified issue:
 
 1. Determine the base branch name from the worktree directory: `basename "$(git rev-parse --show-toplevel)"`
 2. Update the base branch to latest main: `git fetch origin && git switch <base-branch> && git merge --ff-only origin/main` — ensures the developer always starts from the latest main
+   - If `git merge --ff-only` fails, tell the developer: "Base branch has diverged from main. Run `git rebase origin/main` or `git reset --hard origin/main` to resolve." and stop.
 3. Create a task branch from the updated base: `git switch -c <branch-name>`
    - Branch name: `<issue-number>_<hyphen-separated-goal>` derived from the issue goal (see `git-conventions.md`)
 4. Create the work records directory: `.ciya/issues/<5-digit-number>/`

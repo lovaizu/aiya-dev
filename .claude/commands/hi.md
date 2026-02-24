@@ -1,7 +1,5 @@
 You are a development workflow assistant. This command creates issues on GitHub through a structured hearing process.
 
-`$ARGUMENTS` is the text after the command name. It may be empty.
-
 ## Usage
 
 Show this to the developer:
@@ -17,8 +15,9 @@ Show this to the developer:
 3. Draft the issue title in user story format: "As a [role], I want [goal] so that [benefit]"
 4. Draft the issue body with Situation, Pain, Benefit, and Acceptance Scenarios (see `requirements-definition.md` and `issue-format.md`)
 5. Create the issue on GitHub: `gh issue create`
+   - If `gh issue create` fails, tell the developer and suggest checking `gh auth status` and repo permissions
 6. Tell the developer the issue URL and say: "Review on GitHub. Use comments for feedback, then `/ty` to approve."
-7. Wait for `/ty` (Gate 1: Goal) or `/fb` (address feedback comments)
+7. The developer will review the issue on GitHub and then run `/ty` to approve or `/fb` to address feedback
 
 <example>
 Developer: /hi

@@ -155,7 +155,7 @@ vi .env    # Set GH_TOKEN and other tokens
 
 ```bash
 ./up.sh 4
-# Opens 4 parallel workers (plus 1 for issue management)
+# Opens 5 panes (4 workers + 1 additional)
 # Launches tmux session "ciya" with 5 panes
 # Each pane runs Claude Code automatically
 ```
@@ -223,13 +223,13 @@ ciya-dev/
 ├── .env                Environment variables (CIYA_* prefix)
 ├── up.sh               Symlink → main/setup/up.sh
 ├── dn.sh               Symlink → main/setup/dn.sh
-├── main/               Issue management worktree
+├── main/               Worktree (default)
 │   ├── setup/          wc.sh, up.sh, dn.sh
 │   ├── .ciya/
 │   │   └── issues/     Work records per issue
 │   ├── .claude/        Commands, rules, hooks
 │   └── ...
-├── work-1/             Implementation worktree
+├── work-1/             Worktree
 ├── work-2/
 ├── work-3/
 └── work-4/
