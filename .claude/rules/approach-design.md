@@ -13,7 +13,7 @@ A GitHub PR following `pr-format.md`:
 - Approach table with every AS mapped to a means
 - Steps grouped by Approach with concrete, actionable items
 
-Work records in `.ciya/issues/nnnnn/`:
+Work records in `.aiya/issues/nnnnn/`:
 - `design.md` — Problem Summary, Approach, Key Decisions, Open Questions
 
 ## Generate
@@ -26,7 +26,7 @@ Requires: issue approved at Gate 1.
 4. Group unique approaches under Step headings — if multiple ASs share the same approach, use a single heading to avoid duplication
 5. Break each approach into concrete steps with checkboxes so progress can be tracked during implementation
 6. Create a branch: `git fetch origin && git switch -c <branch-name> origin/main`
-7. Create work records directory: `.ciya/issues/<5-digit-number>/`
+7. Create work records directory: `.aiya/issues/<5-digit-number>/`
 8. Write `design.md` with Problem Summary, Approach, Key Decisions, Open Questions — this captures rationale that would otherwise be lost
 9. Create the PR: `gh pr create`
 10. Report the PR URL to the developer

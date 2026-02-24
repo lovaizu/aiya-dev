@@ -6,7 +6,7 @@ HOOK="$SCRIPT_DIR/sandbox.sh"
 REPO_ROOT=$(cd "$SCRIPT_DIR/../.." && git rev-parse --show-toplevel)
 CWD="$REPO_ROOT"
 
-export CIYA_ALLOWED_DOMAINS_FILE="$SCRIPT_DIR/allowed-domains.txt"
+export AIYA_ALLOWED_DOMAINS_FILE="$SCRIPT_DIR/allowed-domains.txt"
 
 passed=0
 failed=0
@@ -239,16 +239,16 @@ assert_decision "WebSearch: always allowed" "allow" \
   "$(mk_json WebSearch '{"query": "test search"}')"
 
 # ============================================================
-echo "=== Network: CIYA_ALLOWED_DOMAINS_FILE unset ==="
+echo "=== Network: AIYA_ALLOWED_DOMAINS_FILE unset ==="
 # ============================================================
 
-CIYA_ALLOWED_DOMAINS_FILE="" assert_decision "WebFetch: CIYA_ALLOWED_DOMAINS_FILE unset" "deny" \
+AIYA_ALLOWED_DOMAINS_FILE="" assert_decision "WebFetch: AIYA_ALLOWED_DOMAINS_FILE unset" "deny" \
   "$(mk_json WebFetch '{"url": "https://api.anthropic.com/v1", "prompt": "test"}')"
 
-CIYA_ALLOWED_DOMAINS_FILE="" assert_decision "Bash curl: CIYA_ALLOWED_DOMAINS_FILE unset" "deny" \
+AIYA_ALLOWED_DOMAINS_FILE="" assert_decision "Bash curl: AIYA_ALLOWED_DOMAINS_FILE unset" "deny" \
   "$(mk_json Bash '{"command": "curl https://api.anthropic.com", "description": "test"}')"
 
-CIYA_ALLOWED_DOMAINS_FILE="/nonexistent/path/domains.txt" assert_decision "WebFetch: CIYA_ALLOWED_DOMAINS_FILE file missing" "deny" \
+AIYA_ALLOWED_DOMAINS_FILE="/nonexistent/path/domains.txt" assert_decision "WebFetch: AIYA_ALLOWED_DOMAINS_FILE file missing" "deny" \
   "$(mk_json WebFetch '{"url": "https://api.anthropic.com/v1", "prompt": "test"}')"
 
 # ============================================================

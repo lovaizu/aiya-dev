@@ -98,7 +98,7 @@ run_up() {
     # Pre-set variables before sourcing up.sh
     export REPO_ROOT="$repo_root"
     export CONFIG_FILE="$repo_root/.up_config"
-    export SESSION_NAME="ciya-test-$$"
+    export SESSION_NAME="aiya-test-$$"
 
     # Source the actual up.sh (BASH_SOURCE guard prevents main from running)
     source "$UP_SH"
@@ -170,27 +170,27 @@ for bad_arg in "abc" "0" "-1"; do
   assert_eq "rejects '$bad_arg'" "1" "$actual_exit"
 done
 
-# Given: no config file and CIYA_WORK_COUNT unset
+# Given: no config file and AIYA_WORK_COUNT unset
 testdir_noconf="$tmp/test_noconf"
 setup_repo "$testdir_noconf"
 result="$(
   export REPO_ROOT="$testdir_noconf"
   export CONFIG_FILE="$testdir_noconf/.up_config"
-  unset CIYA_WORK_COUNT
+  unset AIYA_WORK_COUNT
   source "$UP_SH"
   get_worker_count ""
 )"
 assert_eq "no config, no env → defaults to 1" "1" "$result"
 
-# Given: CIYA_WORK_COUNT=5 and no config
+# Given: AIYA_WORK_COUNT=5 and no config
 result="$(
   export REPO_ROOT="$testdir_noconf"
   export CONFIG_FILE="$testdir_noconf/.up_config"
-  export CIYA_WORK_COUNT=5
+  export AIYA_WORK_COUNT=5
   source "$UP_SH"
   get_worker_count ""
 )"
-assert_eq "CIYA_WORK_COUNT overrides default" "5" "$result"
+assert_eq "AIYA_WORK_COUNT overrides default" "5" "$result"
 
 # Given: a config file exists
 run_up "$testdir_noconf" 3
@@ -301,7 +301,7 @@ setup_repo "$testdir_main"
 (
   export REPO_ROOT="$testdir_main"
   export CONFIG_FILE="$testdir_main/.up_config"
-  export SESSION_NAME="ciya-test-$$"
+  export SESSION_NAME="aiya-test-$$"
   source "$UP_SH"
   launch_tmux() { :; }
   check_env() { :; }

@@ -72,7 +72,7 @@ DNEOF
   git commit -q -m "initial"
 )
 
-fake_remote="$tmp/ciya-dev.git"
+fake_remote="$tmp/aiya-dev.git"
 git clone -q --bare "$staging" "$fake_remote"
 
 # Helper: run wc.sh main() in a subshell with env var override.
@@ -82,7 +82,7 @@ run_wc() {
   local repo_url="${2:-$fake_remote}"
   (
     cd "$workdir"
-    export CIYA_REPO_URL="$repo_url"
+    export AIYA_REPO_URL="$repo_url"
     source "$WC_SH"
     ensure_git() { :; }
     ensure_tmux() { :; }
@@ -103,20 +103,20 @@ mkdir "$workdir"
 # When: running wc.sh
 run_wc "$workdir" >/dev/null
 
-# Then: ciya-dev/ directory is created with expected structure
-assert_eq "ciya-dev/ directory created" "true" "$([ -d "$workdir/ciya-dev" ] && echo true || echo false)"
-assert_eq ".bare/ contains bare clone" "true" "$([ -f "$workdir/ciya-dev/.bare/HEAD" ] && echo true || echo false)"
-assert_eq "main/ worktree exists" "true" "$([ -d "$workdir/ciya-dev/main" ] && echo true || echo false)"
-assert_eq ".env extracted from .env.example" "true" "$(grep -q GH_TOKEN "$workdir/ciya-dev/.env" && echo true || echo false)"
-assert_eq "up.sh is symlink" "main/setup/up.sh" "$(readlink "$workdir/ciya-dev/up.sh")"
-assert_eq "dn.sh is symlink" "main/setup/dn.sh" "$(readlink "$workdir/ciya-dev/dn.sh")"
+# Then: aiya-dev/ directory is created with expected structure
+assert_eq "aiya-dev/ directory created" "true" "$([ -d "$workdir/aiya-dev" ] && echo true || echo false)"
+assert_eq ".bare/ contains bare clone" "true" "$([ -f "$workdir/aiya-dev/.bare/HEAD" ] && echo true || echo false)"
+assert_eq "main/ worktree exists" "true" "$([ -d "$workdir/aiya-dev/main" ] && echo true || echo false)"
+assert_eq ".env extracted from .env.example" "true" "$(grep -q GH_TOKEN "$workdir/aiya-dev/.env" && echo true || echo false)"
+assert_eq "up.sh is symlink" "main/setup/up.sh" "$(readlink "$workdir/aiya-dev/up.sh")"
+assert_eq "dn.sh is symlink" "main/setup/dn.sh" "$(readlink "$workdir/aiya-dev/dn.sh")"
 
 # ── Directory already exists ──────────────────────────────────
 echo "directory already exists:"
 
-# Given: a directory where ciya-dev/ already exists
+# Given: a directory where aiya-dev/ already exists
 workdir="$tmp/test_exists"
-mkdir -p "$workdir/ciya-dev"
+mkdir -p "$workdir/aiya-dev"
 
 # When: running wc.sh
 # Then: exits with non-zero and error message (exit 1 is explicit, not relying on set -e)
@@ -137,7 +137,7 @@ mkdir "$bad_staging"
   git add -A
   git commit -q -m "no env"
 )
-bad_remote="$tmp/ciya-dev-bad.git"
+bad_remote="$tmp/aiya-dev-bad.git"
 git clone -q --bare "$bad_staging" "$bad_remote"
 
 workdir="$tmp/test_cleanup"
@@ -145,10 +145,10 @@ mkdir "$workdir"
 
 # When: wc.sh fails because .env.example doesn't exist
 # Note: run as child process (not sourced) so set -e works correctly for trap testing
-CIYA_REPO_URL="$bad_remote" bash "$WC_SH" 2>/dev/null || true
+AIYA_REPO_URL="$bad_remote" bash "$WC_SH" 2>/dev/null || true
 
-# Then: ciya-dev-bad/ is cleaned up by trap
-assert_eq "directory removed by trap" "false" "$([ -d "$workdir/ciya-dev-bad" ] && echo true || echo false)"
+# Then: aiya-dev-bad/ is cleaned up by trap
+assert_eq "directory removed by trap" "false" "$([ -d "$workdir/aiya-dev-bad" ] && echo true || echo false)"
 
 # ── ensure_git ────────────────────────────────────────────────
 echo "ensure_git:"

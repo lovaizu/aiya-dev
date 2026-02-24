@@ -8,7 +8,7 @@ Verify that each AS is met by the agent performing the scenario as the target us
 
 ## Deliverable
 
-A `scenario-evaluation.md` file in `.ciya/issues/nnnnn/`, with the following format:
+A `scenario-evaluation.md` file in `.aiya/issues/nnnnn/`, with the following format:
 
 ```
 # Scenario Evaluation
@@ -60,6 +60,6 @@ Add a link to the work record file in the PR body:
 - [Scenario Evaluation]({url})
 ```
 
-Construct URL: `https://github.com/{owner}/{repo}/blob/{branch}/.ciya/issues/nnnnn/scenario-evaluation.md`
+Construct URL: `https://github.com/{owner}/{repo}/blob/{branch}/.aiya/issues/nnnnn/scenario-evaluation.md`
 - Get owner/repo: `gh repo view --json owner,name`
 - Get branch: `git branch --show-current`

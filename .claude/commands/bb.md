@@ -22,7 +22,7 @@ Show this to the developer:
    - If no PR, try patterns from the branch name: `N_description` or trailing digits
    - If no number can be extracted, ask the developer
 
-4. Determine the work records directory: `.ciya/issues/<zero-padded-5-digit-number>/`
+4. Determine the work records directory: `.aiya/issues/<zero-padded-5-digit-number>/`
    - Create the directory if it doesn't exist
 
 5. Write `resume.md` with the following structure:
@@ -56,7 +56,7 @@ Step 6: Implementation (Gate 2 passed, implementing steps)
 
 7. Commit and push the work records (follow commit conventions in `git-conventions.md`):
    ```
-   git add .ciya/issues/<5-digit-number>/
+   git add .aiya/issues/<5-digit-number>/
    git commit -m "Save work records for issue #NNN
 
    Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
@@ -65,5 +65,5 @@ Step 6: Implementation (Gate 2 passed, implementing steps)
    If `git push` fails, report the error and suggest remediation (e.g., set upstream with `-u`)
 
 8. Tell the developer:
-   - "Work state saved to `.ciya/issues/<5-digit-number>/resume.md`"
+   - "Work state saved to `.aiya/issues/<5-digit-number>/resume.md`"
    - "Resume anytime with `/ok <number>`"

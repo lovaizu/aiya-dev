@@ -8,7 +8,7 @@ Identify correctness issues and best practice violations before delivery. Domain
 
 ## Deliverable
 
-One `{domain}-expert-review.md` file per expert in `.ciya/issues/nnnnn/`, with the following format:
+One `{domain}-expert-review.md` file per expert in `.aiya/issues/nnnnn/`, with the following format:
 
 ```
 # {Domain} Expert Review
@@ -74,6 +74,6 @@ Add links to work record files in the PR body:
 - [{Domain} Expert Review]({url})
 ```
 
-Construct URL: `https://github.com/{owner}/{repo}/blob/{branch}/.ciya/issues/nnnnn/{domain}-expert-review.md`
+Construct URL: `https://github.com/{owner}/{repo}/blob/{branch}/.aiya/issues/nnnnn/{domain}-expert-review.md`
 - Get owner/repo: `gh repo view --json owner,name`
 - Get branch: `git branch --show-current`

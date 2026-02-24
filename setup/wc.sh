@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# wc.sh — Welcome! One-time bootstrap for ciya-dev.
-# Creates: ciya-dev/ with bare clone + .env + up.sh symlink
+# wc.sh — Welcome! One-time bootstrap for aiya-dev.
+# Creates: aiya-dev/ with bare clone + .env + up.sh symlink
 # Installs: git, tmux, gh, claude, kcov (if not present)
 #
 # Usage: curl -fsSL <raw-url>/wc.sh | bash
 
-CIYA_REPO_URL="${CIYA_REPO_URL:-https://github.com/lovaizu/ciya-dev.git}"
-CIYA_DEFAULT_BRANCH="${CIYA_DEFAULT_BRANCH:-main}"
+AIYA_REPO_URL="${AIYA_REPO_URL:-https://github.com/lovaizu/aiya-dev.git}"
+AIYA_DEFAULT_BRANCH="${AIYA_DEFAULT_BRANCH:-main}"
 
 ensure_git() {
   command -v git >/dev/null 2>&1 && return 0
@@ -71,7 +71,7 @@ main() {
 
   # Derive directory name from repo URL (strip trailing .git and take basename)
   local dir
-  dir="$(basename "${CIYA_REPO_URL%.git}")"
+  dir="$(basename "${AIYA_REPO_URL%.git}")"
 
   if [ -d "$dir" ]; then
     echo "Error: directory '$dir' already exists" >&2
@@ -85,16 +85,16 @@ main() {
   trap 'rm -rf "$abs_dir"' EXIT
 
   # Bare clone
-  git clone -q --bare "$CIYA_REPO_URL" .bare
+  git clone -q --bare "$AIYA_REPO_URL" .bare
   echo "gitdir: ./.bare" > .git
   git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
   git fetch -q origin
 
   # Extract .env from repo
-  git show "origin/$CIYA_DEFAULT_BRANCH:.env.example" > .env
+  git show "origin/$AIYA_DEFAULT_BRANCH:.env.example" > .env
 
   # Create main worktree first so the symlink target exists
-  git worktree add main "$CIYA_DEFAULT_BRANCH"
+  git worktree add main "$AIYA_DEFAULT_BRANCH"
   ln -s main/setup/up.sh up.sh
   ln -s main/setup/dn.sh dn.sh
 

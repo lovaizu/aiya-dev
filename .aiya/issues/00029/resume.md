@@ -4,8 +4,8 @@
 issue-29
 
 ## Associated
-- Issue: https://github.com/lovaizu/ciya-dev/issues/29
-- PR: https://github.com/lovaizu/ciya-dev/pull/31
+- Issue: https://github.com/lovaizu/aiya-dev/issues/29
+- PR: https://github.com/lovaizu/aiya-dev/pull/31
 
 ## Current Workflow Step
 Step 6: Implementation (Gate 2 passed, testing SessionStart hook)

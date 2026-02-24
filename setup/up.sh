@@ -17,14 +17,14 @@ if [ -z "${REPO_ROOT:-}" ]; then  # LCOV_EXCL_START — auto-detect for direct e
 
   # Sanity check: verify we're in a bare repo structure
   if [ ! -d "$REPO_ROOT/.bare" ] && [ ! -f "$REPO_ROOT/.git" ]; then
-    echo "Error: $REPO_ROOT does not look like a ciya-dev repo root" >&2
+    echo "Error: $REPO_ROOT does not look like a aiya-dev repo root" >&2
     exit 1
   fi
 fi  # LCOV_EXCL_STOP
 
 CONFIG_FILE="${CONFIG_FILE:-$REPO_ROOT/.up_config}"
-SESSION_NAME="${SESSION_NAME:-ciya}"
-CIYA_DEFAULT_BRANCH="${CIYA_DEFAULT_BRANCH:-main}"
+SESSION_NAME="${SESSION_NAME:-aiya}"
+AIYA_DEFAULT_BRANCH="${AIYA_DEFAULT_BRANCH:-main}"
 
 usage() {
   cat <<'USAGE'
@@ -79,17 +79,17 @@ get_worker_count() {
   elif [ -f "$CONFIG_FILE" ]; then
     cat "$CONFIG_FILE"
   else
-    echo "${CIYA_WORK_COUNT:-1}"
+    echo "${AIYA_WORK_COUNT:-1}"
   fi
 }
 
 ensure_main_worktree() {
   if [ ! -d "$REPO_ROOT/main" ]; then
     echo "Creating main worktree..."
-    git -C "$REPO_ROOT" worktree add main "$CIYA_DEFAULT_BRANCH"
+    git -C "$REPO_ROOT" worktree add main "$AIYA_DEFAULT_BRANCH"
   fi
   # Update main
-  git -C "$REPO_ROOT/main" pull --ff-only origin "$CIYA_DEFAULT_BRANCH" 2>/dev/null \
+  git -C "$REPO_ROOT/main" pull --ff-only origin "$AIYA_DEFAULT_BRANCH" 2>/dev/null \
     || echo "Warning: could not update main worktree" >&2
 }
 
@@ -106,7 +106,7 @@ ensure_work_worktrees() {
         needs_fetch=false
       fi
       echo "Creating worktree: $name"
-      git -C "$REPO_ROOT" worktree add "$name" -b "$name" "origin/$CIYA_DEFAULT_BRANCH"
+      git -C "$REPO_ROOT" worktree add "$name" -b "$name" "origin/$AIYA_DEFAULT_BRANCH"
     fi
   done
 }
