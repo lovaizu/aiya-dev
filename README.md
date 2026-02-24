@@ -19,25 +19,20 @@ vi .env    # Set GH_TOKEN and other tokens
 ./up.sh 4  # Opens 5 panes (4 workers + 1 additional)
 ```
 
+## How It Works
+
+You and Claude Code collaborate through three gates:
+
+1. **Goal** — `/hi` creates an issue on GitHub. You review and `/ty` to approve the goal.
+2. **Approach** — `/ok N` starts work and creates a PR. You review and `/ty` to approve the approach.
+3. **Delivery** — Claude Code implements and verifies. You review and `/ty` to confirm.
+
+`/fb` addresses review comments at any gate. `/bb` saves progress for later.
+
 ## Usage
 
-**In-session commands** (inside Claude Code):
-
-```
-/hi                    # Create an issue on GitHub
-/fb                    # Address any feedback comments
-/ty                    # Approve the current gate
-/ok 42                 # Start or resume work on issue #42
-/bb                    # Interrupt and save state for later
-```
-
-**Three gates** guide every task: approve the goal → approve the approach → verify the result. That's all you do — the agent handles the rest.
-
-**Shell commands** (terminal):
-
 ```bash
-./up.sh 6              # Scale up to 6 parallel workers
-./up.sh 4              # Scale back to 4
+./up.sh 4              # Start 4 parallel workers
 ./up.sh                # Resume previous session
 ./dn.sh                # Stop the tmux session
 ```
