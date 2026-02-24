@@ -17,7 +17,7 @@ if [ -z "${REPO_ROOT:-}" ]; then  # LCOV_EXCL_START — auto-detect for direct e
 
   # Sanity check: verify we're in a bare repo structure
   if [ ! -d "$REPO_ROOT/.bare" ] && [ ! -f "$REPO_ROOT/.git" ]; then
-    echo "Error: $REPO_ROOT does not look like a aiya-dev repo root" >&2
+    echo "Error: $REPO_ROOT does not look like an aiya-dev repo root" >&2
     exit 1
   fi
 fi  # LCOV_EXCL_STOP
