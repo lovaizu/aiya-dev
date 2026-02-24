@@ -18,7 +18,7 @@
 | 1 | `/hi.md` declares `$ARGUMENTS` but never uses it. Silent ignore of arguments. | Medium | Remove `$ARGUMENTS` declaration since `/hi` takes no arguments. |
 | 2 | `/hi.md` has no error handling for `gh issue create` failure. | Medium | Add error scenario after step 5. |
 | 3 | `/ty.md` has `disable-model-invocation: true` frontmatter. Expert suggests this prevents agent from executing Gates 2/3. | High | N/A — see decision. |
-| 4 | `/ty.md` Gate 2 heuristic for "work-record commits" vs "implementation commits" is imprecise. | Medium | Check files changed: if all under `.ciya/`, work-record-only. If any outside `.ciya/`, implementation started. |
+| 4 | `/ty.md` Gate 2 heuristic for "work-record commits" vs "implementation commits" is imprecise. | Medium | Check files changed: if all under `.aiya/`, work-record-only. If any outside `.aiya/`, implementation started. |
 | 5 | `/ok.md` has no guidance for `git merge --ff-only` failure. | Medium | Add error handling: tell developer base branch diverged, suggest resolution. |
 | 6 | `/ok.md` has only one example (fresh start). Resume and no-arguments paths have no examples. | Low | Add resume example with staleness detection. |
 | 7 | `/bb.md` has no developer-interaction example. | Low | Add example block showing full `/bb` interaction. |

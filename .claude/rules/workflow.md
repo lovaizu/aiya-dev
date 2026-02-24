@@ -70,5 +70,5 @@ If the developer provides feedback instead of approving a gate, use `/fb` to add
 ## Interruption
 
 At any point during the workflow, the developer can run `/bb` to:
-- Save current state to `.ciya/issues/nnnnn/resume.md`
+- Save current state to `.aiya/issues/nnnnn/resume.md`
 - Resume later with `/ok <number>`

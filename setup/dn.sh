@@ -5,10 +5,10 @@ set -euo pipefail
 # Kills the tmux session started by up.sh.
 #
 # Usage:
-#   ./dn.sh          Kill the ciya tmux session
+#   ./dn.sh          Kill the aiya tmux session
 #   ./dn.sh -h       Show help
 
-SESSION_NAME="${SESSION_NAME:-ciya}"
+SESSION_NAME="${SESSION_NAME:-aiya}"
 
 usage() {
   cat <<'USAGE'
@@ -16,7 +16,7 @@ Usage: dn.sh [-h]
 
 Stop the CC development environment by killing the tmux session.
 
-  dn.sh          Kill the ciya tmux session
+  dn.sh          Kill the aiya tmux session
   dn.sh -h       Show this help
 USAGE
 }

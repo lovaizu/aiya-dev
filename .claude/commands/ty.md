@@ -28,8 +28,8 @@ Use this decision tree:
 2. If no PR exists → **Gate 1**
 3. If a PR exists:
    a. Check which files have changed: `git diff --name-only origin/main..HEAD`
-   b. If no changed files, or all changed files are under `.ciya/` → **Gate 2**
-   c. If any changed files are outside `.ciya/` → **Gate 3**
+   b. If no changed files, or all changed files are under `.aiya/` → **Gate 2**
+   c. If any changed files are outside `.aiya/` → **Gate 3**
 
 If the gate cannot be determined, tell the developer which gate could not be identified and ask them to clarify.
 

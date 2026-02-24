@@ -1,10 +1,10 @@
 ## Problem Summary
 
-`up.sh` creates a tmux session named `ciya` but there is no symmetric script to tear it down. Developers must manually remember the session name and run `tmux kill-session -t ciya`.
+`up.sh` creates a tmux session named `aiya` but there is no symmetric script to tear it down. Developers must manually remember the session name and run `tmux kill-session -t aiya`.
 
 ## Approach
 
-Create `setup/dn.sh` as the counterpart to `setup/up.sh`. It kills the `ciya` tmux session. When no session exists, it exits gracefully with a message instead of failing.
+Create `setup/dn.sh` as the counterpart to `setup/up.sh`. It kills the `aiya` tmux session. When no session exists, it exits gracefully with a message instead of failing.
 
 Follow the same patterns as `up.sh`:
 - Same `REPO_ROOT` auto-detection guard with `LCOV_EXCL` (for direct execution)

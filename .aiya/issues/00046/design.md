@@ -1,6 +1,6 @@
 ## Problem Summary
 
-ciya-dev has 6 short-named commands/scripts (`wc.sh`, `up.sh`, `/hi`, `/bb`, `/fb`, `/ty`) that form a conversational flow (Welcome → Up → Hi → Bye-bye → Feedback → Thank you), but this isn't documented. New users can't guess what the abbreviations stand for.
+aiya-dev has 6 short-named commands/scripts (`wc.sh`, `up.sh`, `/hi`, `/bb`, `/fb`, `/ty`) that form a conversational flow (Welcome → Up → Hi → Bye-bye → Feedback → Thank you), but this isn't documented. New users can't guess what the abbreviations stand for.
 
 ## Approach
 

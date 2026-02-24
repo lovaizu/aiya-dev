@@ -61,13 +61,13 @@ chmod +x "$stub_dir/tmux"
 # When: kill_session is called
 output="$(
   export PATH="$stub_dir:$PATH"
-  export SESSION_NAME="ciya-test"
+  export SESSION_NAME="aiya-test"
   source "$DN_SH"
   kill_session
 )"
 
 # Then: it reports the session was stopped
-assert_eq "reports stopped" "Stopped tmux session: ciya-test" "$output"
+assert_eq "reports stopped" "Stopped tmux session: aiya-test" "$output"
 
 # ── kill_session (no session) ─────────────────────────────────
 echo "kill_session (no session):"
@@ -86,13 +86,13 @@ chmod +x "$stub_dir_no/tmux"
 # When: kill_session is called
 output="$(
   export PATH="$stub_dir_no:$PATH"
-  export SESSION_NAME="ciya-test"
+  export SESSION_NAME="aiya-test"
   source "$DN_SH"
   kill_session
 )"
 
 # Then: it reports no session is running
-assert_eq "reports no session" "No tmux session named 'ciya-test' is running." "$output"
+assert_eq "reports no session" "No tmux session named 'aiya-test' is running." "$output"
 
 # ── usage ─────────────────────────────────────────────────────
 echo "usage:"
@@ -127,11 +127,11 @@ assert_contains "main --help shows usage" "Usage: dn.sh" "$output"
 # When: main is called without arguments (stub tmux with no session)
 output="$(
   export PATH="$stub_dir_no:$PATH"
-  export SESSION_NAME="ciya-test"
+  export SESSION_NAME="aiya-test"
   source "$DN_SH"
   main
 )"
-assert_eq "main no-args calls kill_session" "No tmux session named 'ciya-test' is running." "$output"
+assert_eq "main no-args calls kill_session" "No tmux session named 'aiya-test' is running." "$output"
 
 # ── Summary ───────────────────────────────────────────────────
 echo ""

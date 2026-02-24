@@ -4,8 +4,8 @@
 standardized-test-rules
 
 ## Associated
-- Issue: https://github.com/lovaizu/ciya-dev/issues/38
-- PR: https://github.com/lovaizu/ciya-dev/pull/40
+- Issue: https://github.com/lovaizu/aiya-dev/issues/38
+- PR: https://github.com/lovaizu/aiya-dev/pull/40
 
 ## Current Workflow Step
 Step 10: Gate 3 — Goal Verification (review feedback addressed, waiting for re-review)
@@ -26,8 +26,8 @@ Step 10: Gate 3 — Goal Verification (review feedback addressed, waiting for re
 - Evaluated kcov and adopted it for coverage measurement
 - Added domain request convention to agent-behavior.md
 - Added kcov to up.sh prerequisites
-- Added check_prerequisites tests (3 tests) and CIYA_WORK_COUNT test
-- Fixed pre-existing Test 7 failure (CIYA_WORK_COUNT environment isolation)
+- Added check_prerequisites tests (3 tests) and AIYA_WORK_COUNT test
+- Fixed pre-existing Test 7 failure (AIYA_WORK_COUNT environment isolation)
 
 ## Next Steps
 - Developer installs kcov (`sudo apt install kcov`)

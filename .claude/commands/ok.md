@@ -23,7 +23,7 @@ Start or resume work on the specified issue:
 2. Fetch the issue: `gh issue view <issue-number> --json number,title,url,body,state`
 3. If the issue does not exist or `gh` returns an error, tell the developer and suggest checking the number or `gh` auth
 4. If the issue is closed, tell the developer and ask if they want to reopen or work on a different issue
-5. Check for work records: `.ciya/issues/` + zero-padded 5-digit issue number (e.g., `.ciya/issues/00029/`)
+5. Check for work records: `.aiya/issues/` + zero-padded 5-digit issue number (e.g., `.aiya/issues/00029/`)
 6. Check if a PR already exists for this issue: search PR bodies for "Closes #NNN" with `gh pr list --json number,title,url,headRefName,body`
 
 ### If resuming (work records exist or PR exists)
@@ -47,7 +47,7 @@ Start or resume work on the specified issue:
    - If `git merge --ff-only` fails, tell the developer: "Base branch has diverged from main. Run `git rebase origin/main` or `git reset --hard origin/main` to resolve." and stop.
 3. Create a task branch from the updated base: `git switch -c <branch-name>`
    - Branch name: `<issue-number>_<hyphen-separated-goal>` derived from the issue goal (see `git-conventions.md`)
-4. Create the work records directory: `.ciya/issues/<5-digit-number>/`
+4. Create the work records directory: `.aiya/issues/<5-digit-number>/`
 5. Create `design.md` with: `## Problem Summary`, `## Approach`, `## Key Decisions`, `## Open Questions`
 6. Proceed to PR description drafting (workflow step 4):
    - Draft PR title and body with Approach and Steps (see `pr-format.md`)
@@ -59,7 +59,7 @@ Developer: /ok 42
 Agent: Found Issue #42: "As a user, I want dark mode..."
        No existing work records. Starting fresh.
        Created branch: 42_dark-mode-support
-       Created work records at .ciya/issues/00042/
+       Created work records at .aiya/issues/00042/
        Here's the PR draft: [shows approach and steps]
        PR created: https://github.com/.../pull/43
        Review on GitHub, then `/ty` to approve the approach.
