@@ -2,7 +2,7 @@
 
 Follow this workflow for every task. Three phases, each with a purpose and a gate where the developer confirms the work meets expectations before proceeding.
 
-## Phase 1: Goal (main/ worktree)
+## Phase 1: Goal
 
 **Purpose:** Define user value — what Benefit to deliver and how to verify it. Getting the goal right prevents wasted implementation effort.
 
@@ -16,7 +16,7 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
    - **Relevant:** Situation, Pain, Benefit, AS — are the facts accurate, the problem real, and the measure of success right?
    - **Irrelevant:** Implementation details, current architecture, technical feasibility
 
-## Phase 2: Approach (work-N/ worktree)
+## Phase 2: Approach
 
 **Purpose:** Design the means to achieve the Acceptance Scenarios. Reviewing the approach before implementation catches strategic mistakes early.
 
@@ -30,7 +30,7 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
    - **Relevant:** Does Approach cover all AS? Do Steps implement the Approach? Is this the optimal strategy?
    - **Irrelevant:** Whether the goal itself is right (already approved at Gate 1)
 
-## Phase 3: Delivery (work-N/ worktree)
+## Phase 3: Delivery
 
 **Purpose:** Implement and verify that the goal is achieved. Multiple verification steps catch different classes of issues before the developer reviews.
 
@@ -56,11 +56,12 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
     - Verify approval: `gh pr view <number> --json reviewDecision` must return `APPROVED`
     - If not `APPROVED`, ask the developer to approve the PR on GitHub first
     - Squash-merge: `gh pr merge <number> --squash`
-    - Return to base branch and update: `git switch <work-N> && git fetch origin && git merge --ff-only origin/main` — the worktree stays on a named branch at the latest main so the next task starts from a clean, current state
+    - Determine the base branch from the worktree directory: `basename "$(git rev-parse --show-toplevel)"`
+    - Return to base branch and update: `git switch <base-branch> && git fetch origin && git merge --ff-only origin/main` — the worktree stays on a named branch at the latest main so the next task starts from a clean, current state
     - Delete task branch: `git push origin --delete <branch-name> && git branch -D <branch-name>`
 
 11. **Done**
-    - The work-N/ worktree is on its base branch at the latest main, ready for the next `/hi <number>`
+    - The worktree is on its base branch at the latest main, ready for the next `/ok <number>`
 
 ## Gate Rejection
 
@@ -70,4 +71,4 @@ If the developer provides feedback instead of approving a gate, use `/fb` to add
 
 At any point during the workflow, the developer can run `/bb` to:
 - Save current state to `.ciya/issues/nnnnn/resume.md`
-- Resume later with `/hi <number>` in any work-N/ worktree
+- Resume later with `/ok <number>`
