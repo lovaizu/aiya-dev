@@ -92,38 +92,4 @@ The agent implements Steps, verifies AS are met, and confirms Benefits are reali
 
 At each gate: review on GitHub, leave comments if needed (`/fb` to address them), then `/ty` to approve.
 
-## Workflow
-
-```mermaid
-flowchart TD
-    H["/hi — Hearing"] --> I["Issue → GitHub"]
-    I --> R1["Developer reviews"]
-    R1 --> FB1["/fb — Address comments"]
-    FB1 --> R1
-    R1 --> G1["/ty — Gate 1: Goal"]
-
-    G1 --> OK["/ok N — Start or resume"]
-    OK --> WR{Work records?}
-    WR -- new --> BR["Create branch + PR"]
-    WR -- resume --> RS["Restore state"]
-    BR --> R2["Developer reviews"]
-    RS --> R2
-    R2 --> FB2["/fb — Address comments"]
-    FB2 --> R2
-    R2 --> G2["/ty — Gate 2: Approach"]
-    G2 --> IMPL["Implementation"]
-    IMPL --> CHK["Checks & Expert Review"]
-    CHK --> R3["Developer reviews"]
-    R3 --> FB3["/fb — Address comments"]
-    FB3 --> R3
-    R3 --> G3["/ty — Gate 3: Verification"]
-    G3 --> MRG["Merge"]
-
-    BB["/bb — Interrupt & save"] -.-> WR
-```
-
-**How it works:**
-- `/hi` creates issues, `/ok` starts implementation — use either command in any pane
-- Your only job is to review at three gates: approve the goal, the approach, and the final result
-- You interact through five commands (`/hi`, `/ok`, `/ty`, `/fb`, `/bb`) and review comments on GitHub — nothing else
-- At any point, `/bb` saves progress for later resumption
+See the [workflow diagram](../README.md#how-it-works) in the README.

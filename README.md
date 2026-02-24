@@ -96,4 +96,4 @@ aiya-dev/
 
 ## Learn More
 
-- [Methodology](docs/methodology.md) — Traceability Chain, Phases and Gates, Workflow diagram
+- [Methodology](docs/methodology.md) — Traceability Chain, Phases and Gates
