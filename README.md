@@ -21,11 +21,15 @@ vi .env    # Set GH_TOKEN and other tokens
 
 ## How It Works
 
-You and Claude Code collaborate through three gates:
-
-1. **Goal** — `/hi` creates an issue on GitHub. You review and `/ty` to approve the goal.
-2. **Approach** — `/ok N` starts work and creates a PR. You review and `/ty` to approve the approach.
-3. **Delivery** — Claude Code implements and verifies. You review and `/ty` to confirm.
+```mermaid
+flowchart TD
+    A["You: /hi"] -->|create issue| G1{Gate 1: Goal}
+    G1 -->|"You: /ty"| B["You: /ok N"]
+    B -->|create PR| G2{Gate 2: Approach}
+    G2 -->|"You: /ty"| C["CC: implement + verify"]
+    C --> G3{Gate 3: Delivery}
+    G3 -->|"You: /ty"| D[Merge]
+```
 
 `/fb` addresses review comments at any gate. `/bb` saves progress for later.
 
