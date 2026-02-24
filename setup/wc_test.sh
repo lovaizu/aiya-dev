@@ -357,6 +357,39 @@ actual_exit=0
 ) 2>/dev/null || actual_exit=$?
 assert_eq "exits 1 when install fails" "1" "$actual_exit"
 
+# ── Source guard ──────────────────────────────────────────────
+echo "source guard:"
+
+# Create a test script with the same guard pattern as wc.sh
+cat > "$tmp/guard_test.sh" <<'EOF'
+set -euo pipefail
+if [[ "${BASH_SOURCE[0]:-$0}" == "$0" ]]; then
+  echo "main_runs"
+fi
+EOF
+
+# Given: script is piped to bash (simulates curl | bash)
+# When: bash reads from stdin
+# Then: main executes (BASH_SOURCE unset, defaults to $0)
+# Note: env -u BASH_ENV prevents kcov PS4 helper from re-executing in child bash
+output="$(cat "$tmp/guard_test.sh" | env -u BASH_ENV bash 2>&1)"
+assert_eq "pipe: main executes" "main_runs" "$output"
+
+# Given: script is executed directly
+# When: bash runs the file
+# Then: main executes (BASH_SOURCE[0] equals $0)
+output="$(env -u BASH_ENV bash "$tmp/guard_test.sh" 2>&1)"
+assert_eq "direct: main executes" "main_runs" "$output"
+
+# Given: script is sourced by another script
+# When: source loads the file
+# Then: main does NOT execute (BASH_SOURCE[0] differs from $0)
+output="$(source "$tmp/guard_test.sh" 2>&1)"
+assert_eq "sourced: main skipped" "" "$output"
+
+# Verify wc.sh uses the safe guard pattern
+assert_contains "wc.sh uses safe guard" 'BASH_SOURCE[0]:-$0' "$(cat "$WC_SH")"
+
 # ── Summary ───────────────────────────────────────────────────
 echo ""
 echo "Results: $passed passed, $failed failed"
