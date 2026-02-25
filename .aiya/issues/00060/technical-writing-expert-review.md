@@ -22,3 +22,12 @@
 | 1 | Accepted | Clear labels help users distinguish where to run each command |
 | 2 | Rejected | The current wording is accurate — wc.sh installs tools, so only OS and token are prerequisites |
 | 3 | Accepted | A back-link improves navigation for users who land on the docs page directly |
+
+## Implementation Status
+
+| Finding | Implementation |
+|---------|---|
+| 1 | ✅ Added "(Shell commands)" to Usage heading in README.md to clearly distinguish shell commands from slash commands in Commands table |
+| 3 | ✅ Already present: back-link at top of docs/methodology.md points back to README |
+
+All accepted findings have been implemented and verified.
