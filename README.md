@@ -47,7 +47,7 @@ flowchart TD
     BB["/bb — Interrupt & save"] -.-> WR
 ```
 
-## Usage
+## Usage (Shell commands)
 
 ```bash
 ./up.sh 4              # Start 4 parallel workers
@@ -92,7 +92,7 @@ aiya-dev/
 
 | Skill | Description |
 |-------|-------------|
-| skill-smith | Create, improve, and evaluate Claude skills following Anthropic's Guide. Includes structural validation with PASS/FAIL/WARN grading. |
+| skill-smith | Create, improve, and evaluate Claude skills. Includes validation with PASS/FAIL/WARN grading. |
 
 ## Learn More
 
