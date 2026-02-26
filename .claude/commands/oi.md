@@ -36,10 +36,12 @@ Show this to the developer:
 
 5. If any check fails, revise and re-verify
 
-6. Create the issue on GitHub: `gh issue create`
+6. Show the verified draft to the developer — display the title and full body so they can see what will be created
+
+7. Create the issue on GitHub: `gh issue create`
    - If `gh issue create` fails, tell the developer and suggest checking `gh auth status` and repo permissions
 
-7. Tell the developer the issue URL and say: "Review on GitHub. Use comments for feedback, then `/ty` to approve."
+8. Tell the developer the issue URL and say: "Review on GitHub. Use comments for feedback, then `/ty` to approve."
 
 <example>
 Developer: I've been thinking about how our test runner is slow because it runs everything sequentially...

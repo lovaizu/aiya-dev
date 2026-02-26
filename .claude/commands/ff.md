@@ -13,10 +13,14 @@ Show this to the developer:
 1. Fetch the latest remote state: `git fetch origin`
 
 2. Detect the current branch: `git branch --show-current`
+   - If the result is empty, the developer is in detached HEAD. Tell them: "You are in detached HEAD state. Check out a branch first (`git switch <branch>`)." and stop.
 
-3. Determine the base branch name from the worktree directory: `basename "$(git rev-parse --show-toplevel)"`
+3. Check for uncommitted changes: `git status --porcelain`
+   - If changes exist, tell the developer: "You have uncommitted changes. Commit or stash them before catching up with main." and stop.
 
-4. Choose the strategy based on branch type:
+4. Determine the base branch name from the worktree directory: `basename "$(git rev-parse --show-toplevel)"`
+
+5. Choose the strategy based on branch type:
 
 ### Base branch (current branch matches worktree directory name)
 
